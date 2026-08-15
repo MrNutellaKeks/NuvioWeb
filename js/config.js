@@ -28,11 +28,9 @@ export const SPONSOR_NAMES = String(runtimeEnv.SPONSOR_NAMES || "").trim() || "r
 export const TMDB_API_KEY = String(runtimeEnv.TMDB_API_KEY || "").trim();
 export const TRAKT_CLIENT_ID = String(runtimeEnv.TRAKT_CLIENT_ID || "").trim();
 export const TRAKT_CLIENT_SECRET = String(runtimeEnv.TRAKT_CLIENT_SECRET || "").trim();
-export const TRAKT_API_URL = String(runtimeEnv.TRAKT_API_URL || "https://api.trakt.tv").trim();
-export const TRAKT_REDIRECT_URI = String(
-  runtimeEnv.TRAKT_REDIRECT_URI || "urn:ietf:wg:oauth:2.0:oob"
-).trim();
+export const TRAKT_API_URL = "https://api.trakt.tv/";
+export const TRAKT_REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 export const SIMKL_CLIENT_ID = String(runtimeEnv.SIMKL_CLIENT_ID || "").trim();
-export const SIMKL_API_URL = String(runtimeEnv.SIMKL_API_URL || "https://api.simkl.com").trim();
+export const SIMKL_API_URL = "https://api.simkl.com";
 export const SIMKL_APP_NAME = String(runtimeEnv.SIMKL_APP_NAME || "nuvio").trim() || "nuvio";
 export const PREMIUMIZE_CLIENT_ID = String(runtimeEnv.PREMIUMIZE_CLIENT_ID || "").trim();

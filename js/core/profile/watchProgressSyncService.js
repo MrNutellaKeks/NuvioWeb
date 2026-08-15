@@ -6,6 +6,7 @@ import { LocalStore } from "../storage/localStore.js";
 import { TraktAuthStore } from "../../data/local/traktAuthStore.js";
 import { SimklAuthStore } from "../../data/local/simklAuthStore.js";
 import { TraktSettingsStore, WatchProgressSource } from "../../data/local/traktSettingsStore.js";
+import { getSyncClientId } from "../sync/syncClientIdentity.js";
 
 const PULL_RPC = "sync_pull_watch_progress";
 const PUSH_RPC = "sync_push_watch_progress";
@@ -487,7 +488,8 @@ async function pushOnce() {
       PUSH_RPC,
       {
         p_profile_id: profileId,
-        p_entries: rows
+        p_entries: rows,
+        p_origin_client_id: getSyncClientId()
       },
       true
     );
@@ -577,7 +579,8 @@ export const WatchProgressSyncService = {
         DELETE_RPC,
         {
           p_profile_id: resolveProfileId(),
-          p_keys: keys
+          p_keys: keys,
+          p_origin_client_id: getSyncClientId()
         },
         true
       );

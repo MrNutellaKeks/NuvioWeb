@@ -31,7 +31,11 @@ import {
   renderTitleWatchedBadge
 } from "../../components/watchedTitleBadge.js";
 import { renderLoadingIndicator } from "../../components/loadingIndicator.js";
-import { buildSearchScheduleIndices, buildSearchTargets } from "./searchCatalogTargets.js";
+import {
+  buildSearchScheduleIndices,
+  buildSearchTargets,
+  catalogSupportsExtra
+} from "./searchCatalogTargets.js";
 
 const POSTER_HOLD_DELAY_MS = 650;
 const SEARCH_RESULTS_PER_ROW_DEFAULT = 18;
@@ -584,7 +588,8 @@ export const SearchScreen = {
                 .toLowerCase() === "search" && Boolean(extra?.isRequired)
           );
         if (requiresSearch) return;
-        if (!isSearchableCatalogType(catalog.apiType)) return;
+        if (!isSearchableCatalogType(catalog.apiType) && !catalogSupportsExtra(catalog, "search"))
+          return;
         sections.push({
           addonBaseUrl: addon.baseUrl,
           addonId: addon.id,

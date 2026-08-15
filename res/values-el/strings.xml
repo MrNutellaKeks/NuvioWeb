@@ -2561,4 +2561,5 @@
     <string name="cloud_library_error_provider_unavailable">Η cloud βιβλιοθήκη δεν είναι διαθέσιμη για %1$s.</string>
     <string name="cloud_library_error_disabled">Η cloud βιβλιοθήκη είναι απενεργοποιημένη.</string>
     <string name="cloud_library_search_clear">Εκκαθάριση αναζήτησης</string>
+    <string name="upcoming_section_title">Επόμενα</string>
 </resources>

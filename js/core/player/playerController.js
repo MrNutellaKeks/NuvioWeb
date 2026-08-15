@@ -20,6 +20,8 @@ const WEBOS_AUDIO_TRACK_SELECTION_TIMEOUT_MS = 4000;
 const AVPLAY_BUFFER_FOR_PLAY_SECONDS = 5;
 const AVPLAY_BUFFER_FOR_RESUME_SECONDS = 4;
 const AVPLAY_BUFFERING_TIMEOUT_SECONDS = 10;
+const HLS_TRANSIENT_LEVEL_404_RETRY_LIMIT = 2;
+const HLS_TRANSIENT_LEVEL_404_RETRY_BASE_DELAY_MS = 1500;
 
 function logEngineFsDebug(...args) {
   if (globalThis.__NUVIO_DEBUG_ENGINEFS__) {
@@ -152,6 +154,10 @@ export const PlayerController = {
   startupPresentationAudioMuted: false,
   desiredPlaybackRate: 1,
   appliedAvPlayPlaybackRate: 1,
+  appliedWebOsPlaybackRate: 1,
+  webOsPlaybackRateRequestToken: 0,
+  webOsPlaybackRateCommandPromise: null,
+  webOsPlaybackRateReapplyPromise: null,
 
   isExpectedPlayInterruption(error) {
     const message = String(error?.message || "").toLowerCase();
@@ -520,6 +526,10 @@ export const PlayerController = {
   resetNativeMediaState() {
     this.nativeMediaId = "";
     this.nativeMediaIdLookupToken = Number(this.nativeMediaIdLookupToken || 0) + 1;
+    this.webOsPlaybackRateRequestToken = Number(this.webOsPlaybackRateRequestToken || 0) + 1;
+    this.appliedWebOsPlaybackRate = 1;
+    this.webOsPlaybackRateCommandPromise = null;
+    this.webOsPlaybackRateReapplyPromise = null;
     this.cancelWebOsAudioTrackSelection();
     this.selectedWebOsEmbeddedAudioTrackIndex = -1;
     this.selectedWebOsEmbeddedSubtitleTrackIndex = -1;
@@ -3218,6 +3228,48 @@ export const PlayerController = {
     this.playbackEngine = "hls.js";
     let networkRecoveryAttempts = 0;
     let mediaRecoveryAttempts = 0;
+    let transientLevelNotFoundRetries = 0;
+    let transientLevelNotFoundRetryTimer = null;
+
+    const clearTransientLevelNotFoundRetry = () => {
+      if (transientLevelNotFoundRetryTimer) {
+        clearTimeout(transientLevelNotFoundRetryTimer);
+        transientLevelNotFoundRetryTimer = null;
+      }
+    };
+
+    const scheduleTransientLevelNotFoundRetry = () => {
+      transientLevelNotFoundRetries += 1;
+      const retryAttempt = transientLevelNotFoundRetries;
+      const retryDelayMs = HLS_TRANSIENT_LEVEL_404_RETRY_BASE_DELAY_MS * retryAttempt;
+      clearTransientLevelNotFoundRetry();
+      console.warn("[Nuvio playback] retrying transient HLS level 404", {
+        attempt: retryAttempt,
+        limit: HLS_TRANSIENT_LEVEL_404_RETRY_LIMIT,
+        delayMs: retryDelayMs
+      });
+      transientLevelNotFoundRetryTimer = setTimeout(() => {
+        transientLevelNotFoundRetryTimer = null;
+        if (!this.isPlaybackRequestActive(playToken, url) || this.hlsInstance !== hls) {
+          return;
+        }
+        try {
+          // Reload the master manifest as bridge-generated level URLs can be
+          // temporarily unavailable or stale while a live window advances.
+          hls.loadSource(url);
+        } catch (error) {
+          console.warn("HLS level 404 retry failed", error);
+          this.lastPlaybackErrorCode = 2;
+          this.teardownHlsInstance();
+          this.emitVideoEvent("error", {
+            playbackEngine: "hls.js",
+            mediaErrorCode: 2,
+            hlsErrorType: "networkError",
+            hlsErrorDetails: "levelLoadError"
+          });
+        }
+      }, retryDelayMs);
+    };
 
     hls.on(Hls.Events.ERROR, (_, data = {}) => {
       if (!this.isPlaybackRequestActive(playToken, url)) {
@@ -3228,7 +3280,17 @@ export const PlayerController = {
         return;
       }
       if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+        const responseCode = Number(data?.response?.code || data?.networkDetails?.status || 0);
+        if (
+          String(data?.details || "") === "levelLoadError" &&
+          responseCode === 404 &&
+          transientLevelNotFoundRetries < HLS_TRANSIENT_LEVEL_404_RETRY_LIMIT
+        ) {
+          scheduleTransientLevelNotFoundRetry();
+          return;
+        }
         if (networkRecoveryAttempts >= 1) {
+          clearTransientLevelNotFoundRetry();
           this.lastPlaybackErrorCode = 2;
           this.teardownHlsInstance();
           this.emitVideoEvent("error", {
@@ -3275,6 +3337,11 @@ export const PlayerController = {
         hlsErrorType: String(data.type || ""),
         hlsErrorDetails: String(data.details || "")
       });
+    });
+
+    hls.on(Hls.Events.LEVEL_LOADED, () => {
+      clearTransientLevelNotFoundRetry();
+      transientLevelNotFoundRetries = 0;
     });
 
     hls.on(Hls.Events.MEDIA_ATTACHED, () => {
@@ -3623,6 +3690,11 @@ export const PlayerController = {
       // video, so only expose the rate that preserves A/V synchronization.
       return [1];
     }
+    if (Platform.isWebOS() && !this.isUsingNativePlayback()) {
+      // MSE-backed hls.js/dash.js playback never exposes a mediaId, so the
+      // native Luna setPlayRate command cannot target that pipeline.
+      return [1];
+    }
     return [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
   },
 
@@ -3686,6 +3758,100 @@ export const PlayerController = {
     return this.applyAvPlayPlaybackRate(targetSpeed);
   },
 
+  isSupportedWebOsPlaybackRate(speed = 1) {
+    const targetSpeed = this.normalizePlaybackRate(speed);
+    if (!Number.isFinite(targetSpeed) || targetSpeed > 2) {
+      return false;
+    }
+    if (targetSpeed === 1) {
+      return true;
+    }
+    return Platform.isWebOS() && this.isUsingNativePlayback();
+  },
+
+  async applyWebOsPlaybackRate(speed = this.desiredPlaybackRate) {
+    if (!Platform.isWebOS() || !this.video || !this.isUsingNativePlayback()) {
+      return false;
+    }
+    const targetSpeed = this.normalizePlaybackRate(speed);
+    if (!this.isSupportedWebOsPlaybackRate(targetSpeed)) {
+      return false;
+    }
+
+    // A native webOS pipeline publishes its private mediaId asynchronously.
+    // MSE pipelines never publish one, which is why they are rejected above.
+    const mediaId =
+      this.syncNativeMediaId() ||
+      (await this.waitForNativeMediaId({ maxAttempts: 20, intervalMs: 250 }));
+    if (!mediaId) {
+      return false;
+    }
+    // Treat nativeMediaIdLookupToken as the native-pipeline generation. Once
+    // mediaId exists, waitForNativeMediaId() does not increment it, so a later
+    // token change means the source was reset while this Luna command was in
+    // flight.
+    const nativeMediaStateToken = Number(this.nativeMediaIdLookupToken || 0);
+
+    try {
+      // Do not locally time out this command. Luna requests cannot be cancelled
+      // through the shared wrapper, so declaring failure while one is still in
+      // flight can let a late success change the native rate after the UI has
+      // reverted to its previous value.
+      const result = await this.requestWebOsMediaCommand("setPlayRate", {
+        mediaId,
+        playRate: targetSpeed,
+        audioOutput: true
+      });
+      if (result?.returnValue !== true) {
+        return false;
+      }
+      if (nativeMediaStateToken !== Number(this.nativeMediaIdLookupToken || 0)) {
+        return false;
+      }
+      this.appliedWebOsPlaybackRate = targetSpeed;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  },
+
+  queueWebOsPlaybackRate(speed = this.desiredPlaybackRate) {
+    const previousCommand = this.webOsPlaybackRateCommandPromise;
+    const commandPromise = previousCommand
+      ? Promise.resolve(previousCommand)
+          .catch(() => false)
+          .then(() => this.applyWebOsPlaybackRate(speed))
+      : this.applyWebOsPlaybackRate(speed);
+    const trackedPromise = commandPromise.finally(() => {
+      if (this.webOsPlaybackRateCommandPromise === trackedPromise) {
+        this.webOsPlaybackRateCommandPromise = null;
+      }
+    });
+    this.webOsPlaybackRateCommandPromise = trackedPromise;
+    return trackedPromise;
+  },
+
+  reapplyWebOsPlaybackRate() {
+    if (
+      !Platform.isWebOS() ||
+      !this.video ||
+      !this.isUsingNativePlayback() ||
+      this.desiredPlaybackRate === 1
+    ) {
+      return Promise.resolve(false);
+    }
+    if (this.webOsPlaybackRateReapplyPromise) {
+      return this.webOsPlaybackRateReapplyPromise;
+    }
+    const reapplyPromise = this.queueWebOsPlaybackRate(this.desiredPlaybackRate).finally(() => {
+      if (this.webOsPlaybackRateReapplyPromise === reapplyPromise) {
+        this.webOsPlaybackRateReapplyPromise = null;
+      }
+    });
+    this.webOsPlaybackRateReapplyPromise = reapplyPromise;
+    return reapplyPromise;
+  },
+
   getPlaybackRate() {
     const targetSpeed = this.normalizePlaybackRate(this.desiredPlaybackRate);
     if (Number.isFinite(targetSpeed)) {
@@ -3694,7 +3860,7 @@ export const PlayerController = {
     return Number(this.video?.playbackRate || 1);
   },
 
-  setPlaybackRate(speed = 1) {
+  async setPlaybackRate(speed = 1) {
     if (!this.video) {
       return false;
     }
@@ -3715,23 +3881,37 @@ export const PlayerController = {
       return true;
     }
 
-    this.desiredPlaybackRate = targetSpeed;
+    if (Platform.isWebOS()) {
+      if (!this.isSupportedWebOsPlaybackRate(targetSpeed)) {
+        return false;
+      }
+      if (!this.isUsingNativePlayback()) {
+        // A non-native (MSE) pipeline is already at normal speed and has no
+        // mediaId that Luna can address.
+        if (targetSpeed === 1) {
+          this.desiredPlaybackRate = 1;
+          this.appliedWebOsPlaybackRate = 1;
+          return true;
+        }
+        return false;
+      }
+
+      const requestToken = Number(this.webOsPlaybackRateRequestToken || 0) + 1;
+      this.webOsPlaybackRateRequestToken = requestToken;
+      const applied = await this.queueWebOsPlaybackRate(targetSpeed);
+      if (!applied || requestToken !== this.webOsPlaybackRateRequestToken) {
+        return false;
+      }
+      this.desiredPlaybackRate = targetSpeed;
+      return true;
+    }
+
     try {
       this.video.playbackRate = targetSpeed;
     } catch (_) {
-      // webOS native playback can still accept the Luna play-rate command.
+      return false;
     }
-
-    const mediaId = this.syncNativeMediaId();
-    if (Platform.isWebOS() && mediaId) {
-      this.requestWebOsMediaCommand("setPlayRate", {
-        mediaId,
-        playRate: targetSpeed,
-        audioOutput: true
-      }).catch(() => {
-        // Keep the media-element playbackRate fallback.
-      });
-    }
+    this.desiredPlaybackRate = targetSpeed;
 
     return true;
   },
@@ -4179,13 +4359,19 @@ export const PlayerController = {
       });
     });
 
-    const syncNativeMediaId = () => {
+    const syncNativeMediaId = (event) => {
       this.syncNativeMediaId();
+      if (event?.type === "canplay" || event?.type === "playing") {
+        this.reapplyWebOsPlaybackRate().catch(() => {});
+      }
     };
     this.video.addEventListener("loadedmetadata", syncNativeMediaId);
     this.video.addEventListener("loadeddata", syncNativeMediaId);
     this.video.addEventListener("canplay", syncNativeMediaId);
     this.video.addEventListener("playing", syncNativeMediaId);
+    this.video.addEventListener("seeked", () => {
+      this.reapplyWebOsPlaybackRate().catch(() => {});
+    });
     this.video.addEventListener("emptied", () => {
       this.resetNativeMediaState();
     });

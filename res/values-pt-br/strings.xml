@@ -2711,4 +2711,5 @@
     <string name="cloud_library_search_label">Pesquisar na biblioteca em nuvem</string>
     <string name="cloud_library_search_placeholder">Pesquisar arquivos</string>
     <string name="cloud_library_search_clear">Limpar pesquisa</string>
+    <string name="upcoming_section_title">Próximos</string>
 </resources>

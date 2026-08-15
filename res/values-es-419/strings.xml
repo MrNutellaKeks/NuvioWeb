@@ -2455,4 +2455,7 @@
     <string name="cloud_library_error_provider_unavailable">La biblioteca en la nube no está disponible para %1$s.</string>
     <string name="cloud_library_error_disabled">La biblioteca en la nube está deshabilitada.</string>
     <string name="cloud_library_search_clear">Borrar búsqueda</string>
+    <string name="layout_cw_sort_split_upcoming">Separar fila de próximos</string>
+    <string name="layout_cw_sort_split_upcoming_desc">Mueve los episodios que aún no se han emitido a una fila separada de Próximos</string>
+    <string name="upcoming_section_title">Próximos</string>
 </resources>

@@ -2684,4 +2684,5 @@
     <string name="cloud_library_error_provider_unavailable">%1$s için bulut kütüphanesi kullanılamıyor.</string>
     <string name="cloud_library_error_disabled">Bulut kütüphanesi kapalı.</string>
     <string name="cloud_library_search_clear">Aramayı temizle</string>
+    <string name="upcoming_section_title">Yaklaşanlar</string>
 </resources>

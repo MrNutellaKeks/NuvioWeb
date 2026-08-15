@@ -52,9 +52,9 @@ import { renderLoadingIndicator } from "../../components/loadingIndicator.js";
 const STREAM_BADGE_LIMIT = 9;
 // Number of rows on each side of the focused source to keep badge-hydrated.
 // Windowing by row index (instead of measuring every card) keeps a single
-// focus move O(1) in layout reads on webOS, where a getBoundingClientRect per
-// card forced a full list reflow every keypress on long source lists.
-const WEBOS_STREAM_BADGE_WINDOW_ROWS = 24;
+// focus move O(1) in layout reads on TV browsers, where measuring every card
+// forced a full list reflow on each keypress in long source lists.
+const TV_STREAM_BADGE_WINDOW_ROWS = 24;
 const WEBOS_NATIVE_PLAYER_APP_IDS = [
   "com.webos.app.mediadiscovery",
   "com.webos.app.photovideo",
@@ -1626,10 +1626,19 @@ export const StreamScreen = {
     if (!target) {
       return false;
     }
-    this.container
-      .querySelectorAll(".focusable")
-      .forEach((node) => node.classList.remove("focused"));
+    // Long source lists used to scan every focusable node on every D-pad
+    // press just to clear one class. Keep the active node instead: focus
+    // movement now updates only the previous and next cards, matching the
+    // bounded work Android gets from LazyColumn focus navigation.
+    const previous =
+      this.focusedElement && this.container?.contains(this.focusedElement)
+        ? this.focusedElement
+        : this.container?.querySelector(".focusable.focused");
+    if (previous && previous !== target) {
+      previous.classList.remove("focused");
+    }
     target.classList.add("focused");
+    this.focusedElement = target;
     try {
       target.focus({ preventScroll: true });
     } catch (_) {
@@ -1819,9 +1828,15 @@ export const StreamScreen = {
   },
 
   getFocusLists() {
+    const listNode = this.container?.querySelector(".stream-route-list") || null;
+    if (this.streamFocusDomCache?.listNode === listNode) {
+      return this.streamFocusDomCache.value;
+    }
     const chips = Array.from(this.container.querySelectorAll(".stream-route-chip.focusable"));
     const rows = this.getCardRows();
-    return { chips, rows };
+    const value = { chips, rows };
+    this.streamFocusDomCache = { listNode, value };
+    return value;
   },
 
   applyFocus() {
@@ -2164,7 +2179,8 @@ export const StreamScreen = {
     const headline = getStreamHeadline(stream);
     const quality = getStreamQuality(stream);
     const lazyBadges =
-      Environment.isWebOS() && hasStreamBadges(stream, streamBadgesEnabled, badgeSettings);
+      (Environment.isWebOS() || Environment.isTizen()) &&
+      hasStreamBadges(stream, streamBadgesEnabled, badgeSettings);
     const badges = lazyBadges
       ? `<div class="stream-route-card-badges stream-route-card-badges-lazy" data-lazy-stream-badges data-stream-badge-row="${index}" data-badges-hydrated="false" aria-label="${escapeHtml(t("settings_stream_badges_section", {}, "Fusion Style"))}"></div>`
       : renderStreamBadges(stream, streamBadgesEnabled, badgeSettings);
@@ -2331,6 +2347,8 @@ export const StreamScreen = {
     if (!markupUnchanged) {
       this.container.innerHTML = nextMarkup;
       this.renderedMarkup = nextMarkup;
+      this.streamFocusDomCache = null;
+      this.focusedElement = null;
     }
 
     this.restoreScrollPosition();
@@ -2384,7 +2402,7 @@ export const StreamScreen = {
 
   requestStreamBadgeHydration() {
     if (
-      !Environment.isWebOS() ||
+      (!Environment.isWebOS() && !Environment.isTizen()) ||
       Router.getCurrent() !== "stream" ||
       this.streamBadgeHydrationFrame
     ) {
@@ -2397,7 +2415,11 @@ export const StreamScreen = {
   },
 
   hydrateVisibleStreamBadges() {
-    if (!Environment.isWebOS() || Router.getCurrent() !== "stream" || !this.container) {
+    if (
+      (!Environment.isWebOS() && !Environment.isTizen()) ||
+      Router.getCurrent() !== "stream" ||
+      !this.container
+    ) {
       return;
     }
     const list = this.container.querySelector(".stream-route-list");
@@ -2412,14 +2434,13 @@ export const StreamScreen = {
 
     // Android's LazyColumn only composes badge images near the viewport. Keep
     // the complete Web card list for existing remote/pointer navigation, but
-    // apply the same bounded image/DOM lifetime on webOS. Window by row index
-    // around the focus (the focused row is always scrolled into view) instead
-    // of measuring every card: a getBoundingClientRect per card forced a full
-    // list reflow on every focus move, which made long source lists unusable
-    // on webOS.
+    // apply the same bounded image/DOM lifetime on webOS and Tizen. Window by
+    // row index around the focus (the focused row is always scrolled into view)
+    // instead of measuring every card: per-card geometry reads forced a full
+    // list reflow on every focus move on constrained TV browsers.
     const anchorRow = focusedRow >= 0 ? focusedRow : 0;
-    const windowStart = anchorRow - WEBOS_STREAM_BADGE_WINDOW_ROWS;
-    const windowEnd = anchorRow + WEBOS_STREAM_BADGE_WINDOW_ROWS;
+    const windowStart = anchorRow - TV_STREAM_BADGE_WINDOW_ROWS;
+    const windowEnd = anchorRow + TV_STREAM_BADGE_WINDOW_ROWS;
     placeholders.forEach((placeholder) => {
       const rowIndex = Number(placeholder.dataset.streamBadgeRow || -1);
       const shouldHydrate =
@@ -2431,8 +2452,17 @@ export const StreamScreen = {
           streamBadgesEnabled,
           badgeSettings
         );
+        // webOS already uses the fixed-height lazy badge row. Tizen must drop
+        // that placeholder-only class once hydrated so its visible wrapping
+        // and card geometry remain byte-for-byte CSS-equivalent to the eager
+        // rendering path.
+        if (Environment.isTizen()) {
+          placeholder.classList.remove("stream-route-card-badges-lazy");
+        }
         placeholder.dataset.badgesHydrated = "true";
-      } else if (!shouldHydrate && hydrated) {
+        // Keep already-visited Tizen rows hydrated. Removing a wrapped badge row
+        // above the viewport could change list geometry and move the focused card.
+      } else if (!shouldHydrate && hydrated && !Environment.isTizen()) {
         placeholder.textContent = "";
         placeholder.dataset.badgesHydrated = "false";
       }
@@ -2783,6 +2813,8 @@ export const StreamScreen = {
     }
     this.renderedMarkup = null;
     this.boundStreamListNode = null;
+    this.streamFocusDomCache = null;
+    this.focusedElement = null;
     ScreenUtils.hide(this.container);
   }
 };

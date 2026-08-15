@@ -19,10 +19,7 @@ export const ENV_PROPERTY_KEYS = [
   "TMDB_API_KEY",
   "TRAKT_CLIENT_ID",
   "TRAKT_CLIENT_SECRET",
-  "TRAKT_API_URL",
-  "TRAKT_REDIRECT_URI",
   "SIMKL_CLIENT_ID",
-  "SIMKL_API_URL",
   "SIMKL_APP_NAME",
   "PREMIUMIZE_CLIENT_ID"
 ];
@@ -44,10 +41,7 @@ const DEFAULT_ENV_VALUES = {
   TMDB_API_KEY: "",
   TRAKT_CLIENT_ID: "",
   TRAKT_CLIENT_SECRET: "",
-  TRAKT_API_URL: "https://api.trakt.tv",
-  TRAKT_REDIRECT_URI: "urn:ietf:wg:oauth:2.0:oob",
   SIMKL_CLIENT_ID: "",
-  SIMKL_API_URL: "https://api.simkl.com",
   SIMKL_APP_NAME: "nuvio",
   PREMIUMIZE_CLIENT_ID: ""
 };

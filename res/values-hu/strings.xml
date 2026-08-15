@@ -1264,4 +1264,7 @@
     <string name="cloud_library_error_provider_unavailable">A felhőkönyvtár nem érhető el a %1$s számára.</string>
     <string name="cloud_library_error_disabled">A felhőkönyvtár le van tiltva.</string>
     <string name="cloud_library_search_clear">Keresés törlése</string>
+    <string name="layout_cw_sort_split_upcoming">Külön Hamarosan sor</string>
+    <string name="layout_cw_sort_split_upcoming_desc">A még le nem adott epizódok áthelyezése külön Hamarosan sorba</string>
+    <string name="upcoming_section_title">Hamarosan</string>
 </resources>

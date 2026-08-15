@@ -1,4 +1,5 @@
 import { Platform } from "../../platform/index.js";
+import { TizenEngineFsService } from "../../platform/tizen/tizenEngineFsService.js";
 import {
   isWebOsCompanionServiceAvailable,
   requestWebOsCompanionService
@@ -161,6 +162,22 @@ export const localMediaTracksRepository = {
       }
 
       if (Platform.isTizen()) {
+        try {
+          const service = await TizenEngineFsService.ensureStarted();
+          const baseUrl = String(service?.baseUrl || "").replace(/\/+$/, "");
+          if (service?.status === "success" && baseUrl) {
+            const payload = await fetchJson(`${baseUrl}/tracks/${encodeURIComponent(targetUrl)}`);
+            const tracks = Array.isArray(payload) ? payload : [];
+            rememberLocalMediaServerUrl(baseUrl);
+            tracksCache.set(targetUrl, {
+              tracks,
+              expiresAt: Date.now() + TRACK_CACHE_TTL_MS
+            });
+            return tracks;
+          }
+        } catch (_) {
+          // AVPlay metadata remains available when the packaged service cannot start.
+        }
         tracksCache.set(targetUrl, {
           tracks: [],
           expiresAt: Date.now() + Math.min(TRACK_CACHE_TTL_MS, 5000)

@@ -2706,4 +2706,5 @@
     <string name="cloud_library_search_label">Szukaj w bibliotece chmurowej</string>
     <string name="cloud_library_search_placeholder">Wyszukaj pliki</string>
     <string name="cloud_library_search_clear">Wyczyść wyszukiwanie</string>
+    <string name="upcoming_section_title">Nadchodzące</string>
 </resources>

@@ -3688,6 +3688,11 @@ export const SettingsScreen = {
           id: "streaming_style",
           labelKey: "settings.layout.continueWatchingSort.streamingStyle",
           label: "Streaming Style"
+        },
+        {
+          id: "split_upcoming",
+          labelKey: "layout_cw_sort_split_upcoming",
+          label: "Separate Upcoming Row"
         }
       ];
       this.openOptionDialog({
@@ -3794,9 +3799,11 @@ export const SettingsScreen = {
     const showAutoplayRow = cardExpansionEnabled || isModernLandscape;
     const continueWatchingSortMode = String(model.layout.continueWatchingSortMode || "default");
     const continueWatchingSortLabel =
-      continueWatchingSortMode === "streaming_style"
-        ? t("settings.layout.continueWatchingSort.streamingStyle", {}, "Streaming Style")
-        : t("settings.layout.continueWatchingSort.default", {}, "Default");
+      continueWatchingSortMode === "split_upcoming"
+        ? t("layout_cw_sort_split_upcoming", {}, "Separate Upcoming Row")
+        : continueWatchingSortMode === "streaming_style"
+          ? t("settings.layout.continueWatchingSort.streamingStyle", {}, "Streaming Style")
+          : t("settings.layout.continueWatchingSort.default", {}, "Default");
 
     const homeLayoutBody = `
       <div class="settings-stack">

@@ -489,9 +489,13 @@
     <string name="supporters_contributors_subtitle">The people backing Nuvio and the contributors building it across TV and mobile.</string>
     <string name="supporters_contributors_supporters_copy">Supporters and donators help keep the project moving, fund infrastructure, and make room for ambitious features.</string>
     <string name="supporters_contributors_donate_copy">Nuvio will stay free and open source. If you want to support the project, you can help cover the time and infrastructure behind it.</string>
+    <string name="supporters_contributors_donation_progress_title">This month’s server &amp; maintenance</string>
+    <string name="supporters_contributors_donation_progress_complete">Covered. Additional support now goes to development.</string>
+    <string name="supporters_contributors_donation_progress_remaining">After 100%, additional support goes to development.</string>
+    <string name="supporters_contributors_loading_donation_progress">Loading funding progress...</string>
     <string name="supporters_contributors_donate_button">Donate to Nuvio</string>
     <string name="supporters_contributors_qr_title">Scan to donate</string>
-    <string name="supporters_contributors_qr_subtitle">Open the link on your phone and support Nuvio through Ko-fi.</string>
+    <string name="supporters_contributors_qr_subtitle">Open the link on your phone to support Nuvio.</string>
     <string name="supporters_contributors_qr_hint">Point your camera at the QR code or use the button below.</string>
     <string name="supporters_contributors_back_button">Back to details</string>
     <string name="supporters_tab">Supporters</string>
@@ -2726,6 +2730,7 @@
     <string name="layout_cw_card_style_poster">Poster</string>
     <string name="layout_cw_sort_split_upcoming">Separate Upcoming Row</string>
     <string name="layout_cw_sort_split_upcoming_desc">Move unaired episodes to a separate Upcoming row</string>
+    <string name="upcoming_section_title">Upcoming</string>
     <string name="settings_card_depth_edge">Edge glow</string>
     <string name="settings_card_depth_edge_subtle">Subtle</string>
     <string name="settings_card_depth_edge_balanced">Balanced</string>

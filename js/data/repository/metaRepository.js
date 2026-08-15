@@ -185,7 +185,12 @@ class MetaRepository {
   }
 
   mapMeta(meta) {
-    if (!meta) {
+    if (
+      !meta ||
+      typeof meta !== "object" ||
+      Array.isArray(meta) ||
+      Object.keys(meta).length === 0
+    ) {
       return null;
     }
 

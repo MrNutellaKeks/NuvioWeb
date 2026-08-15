@@ -26,6 +26,12 @@ export function normalizeSupporterDonations(rawDonations) {
     .sort((left, right) => right.sortTimestamp - left.sortTimestamp);
 }
 
+export function normalizeDonationProgress(rawProgressPercent) {
+  const progressPercent = Number(rawProgressPercent);
+  if (!Number.isFinite(progressPercent)) return null;
+  return Math.min(100, Math.max(0, Math.trunc(progressPercent)));
+}
+
 export function normalizeContributors(rawContributors) {
   if (!Array.isArray(rawContributors)) return [];
 

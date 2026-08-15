@@ -38,6 +38,11 @@ const ACCENT_BY_THEME = {
   ROSE: "#d81b60"
 };
 
+export function accentColorForTheme(themeName) {
+  const normalizedThemeName = String(themeName || DEFAULT_THEME.themeName).toUpperCase();
+  return String(ACCENT_BY_THEME[normalizedThemeName] || DEFAULT_THEME.accentColor).toLowerCase();
+}
+
 function normalizeTheme(settings = {}) {
   const accent = String(settings?.accentColor || DEFAULT_THEME.accentColor).toLowerCase();
   const storedThemeName = String(settings?.themeName || DEFAULT_THEME.themeName).toUpperCase();
@@ -47,9 +52,9 @@ function normalizeTheme(settings = {}) {
       ? themeFromAccent
       : storedThemeName || themeFromAccent || DEFAULT_THEME.themeName
   ).toUpperCase();
-  const normalizedAccent = String(
-    ACCENT_BY_THEME[themeName] || accent || DEFAULT_THEME.accentColor
-  ).toLowerCase();
+  const normalizedAccent = ACCENT_BY_THEME[themeName]
+    ? accentColorForTheme(themeName)
+    : String(accent || DEFAULT_THEME.accentColor).toLowerCase();
 
   return {
     ...DEFAULT_THEME,

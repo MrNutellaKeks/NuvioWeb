@@ -28,12 +28,12 @@
         },
         {
           "name": "bitmapSubtitlePrepare",
-          "description": "Preload shared Matroska metadata for embedded VOBSUB tracks",
+          "description": "Preload shared Matroska metadata for embedded bitmap subtitle tracks",
           "public": true
         },
         {
           "name": "bitmapSubtitleWindow",
-          "description": "Extract a bounded VOBSUB window from an embedded Matroska track",
+          "description": "Extract a bounded bitmap subtitle window from an embedded Matroska track",
           "public": true
         },
         {

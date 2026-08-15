@@ -2683,4 +2683,5 @@
     <string name="cloud_library_error_provider_unavailable">Cloudová knižnica nie je dostupná pre %1$s.</string>
     <string name="cloud_library_error_disabled">Cloudová knižnica je vypnutá.</string>
     <string name="cloud_library_search_clear">Vymazať vyhľadávanie</string>
+    <string name="upcoming_section_title">Nespustené</string>
 </resources>

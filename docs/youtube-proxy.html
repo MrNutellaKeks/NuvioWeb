@@ -45,6 +45,7 @@
         var autoplay = params.autoplay !== "0";
         var loop = params.loop !== "0";
         var captionsEnabled = params.cc_load_policy === "1";
+        var directEmbedRequested = params.direct === "1";
         var statePollMs = Math.max(
           0,
           Number(params.state_poll_ms == null ? 250 : params.state_poll_ms) || 0
@@ -377,9 +378,13 @@
           }, 4500);
         };
 
-        var apiScript = document.createElement("script");
-        apiScript.src = "https://www.youtube.com/iframe_api?_cb=" + encodeURIComponent(cacheBuster);
-        document.head.appendChild(apiScript);
+        if (directEmbedRequested) {
+          fallbackToDirectEmbed();
+        } else {
+          var apiScript = document.createElement("script");
+          apiScript.src = "https://www.youtube.com/iframe_api?_cb=" + encodeURIComponent(cacheBuster);
+          document.head.appendChild(apiScript);
+        }
       })();
     </script>
   </body>

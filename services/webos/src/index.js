@@ -398,7 +398,9 @@ function registerBitmapSubtitleCommand() {
         respond(message, Object.assign(buildBasePayload(), result, { returnValue: true }));
       })
       .catch(function (error) {
-        console.error("[" + SERVICE_ID + "] bitmap subtitle extraction failed:", error);
+        if (!error || error.code !== "REQUEST_SUPERSEDED") {
+          console.error("[" + SERVICE_ID + "] bitmap subtitle extraction failed:", error);
+        }
         respond(
           message,
           buildErrorPayload(error, {

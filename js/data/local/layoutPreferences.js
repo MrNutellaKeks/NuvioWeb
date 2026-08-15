@@ -52,6 +52,13 @@ function normalizeContinueWatchingSortMode(value) {
   const normalized = String(value || "default")
     .trim()
     .toLowerCase();
+  if (
+    normalized === "split_upcoming" ||
+    normalized === "split-upcoming" ||
+    normalized === "splitupcoming"
+  ) {
+    return "split_upcoming";
+  }
   return normalized === "streaming_style" ||
     normalized === "streaming-style" ||
     normalized === "streamingstyle"

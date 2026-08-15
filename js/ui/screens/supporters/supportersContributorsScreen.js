@@ -10,6 +10,7 @@ import {
 } from "../../../config.js";
 import { QrCodeGenerator } from "../../../core/qr/qrCodeGenerator.js";
 import {
+  normalizeDonationProgress,
   normalizeContributors,
   normalizeSupporterDonations,
   parseSponsorNames,
@@ -20,7 +21,6 @@ import {
   scrollSettingsContentItem,
   settingsScrollIndicatorMarkup
 } from "../settings/settingsScreen.js";
-import { renderLoadingIndicator } from "../../components/loadingIndicator.js";
 
 const TABS = ["supporters", "sponsors", "contributors"];
 const DEFAULT_TAB = "contributors";
@@ -182,7 +182,10 @@ async function loadSupporters() {
     `${baseUrl}/api/donations?view=recent`,
     t("supporters_error_api_http", {}, "Donations API error")
   );
-  return normalizeSupporterDonations(data?.donations);
+  return {
+    items: normalizeSupporterDonations(data?.donations),
+    donationProgress: normalizeDonationProgress(data?.monthlyGoal?.progressPercent)
+  };
 }
 
 async function loadSponsors() {
@@ -223,7 +226,8 @@ export const SupportersContributorsScreen = {
     this.state = {
       supporters: { loading: false, loaded: false, items: [], error: null },
       sponsors: { loading: false, loaded: false, items: [], error: null },
-      contributors: { loading: false, loaded: false, items: [], error: null }
+      contributors: { loading: false, loaded: false, items: [], error: null },
+      donationProgress: null
     };
   },
 
@@ -274,19 +278,28 @@ export const SupportersContributorsScreen = {
     tabState.error = null;
     await this.render();
     try {
-      const items =
+      const result =
         tab === "supporters"
           ? await loadSupporters()
           : tab === "sponsors"
             ? await loadSponsors()
             : await loadContributors();
-      tabState.items = items;
+      tabState.items = tab === "supporters" ? result.items : result;
+      if (tab === "supporters") {
+        this.state.donationProgress = result.donationProgress;
+      }
       tabState.loaded = true;
       tabState.error = null;
     } catch (error) {
       tabState.items = [];
       tabState.loaded = false;
       tabState.error = error?.message || String(error || "");
+      if (tab === "supporters") {
+        this.state.donationProgress = null;
+      }
+      if (this.selectedTab === tab) {
+        this.focusKey = `retry:${tab}`;
+      }
     } finally {
       tabState.loading = false;
       if (Router.getCurrent() === "supportersContributors") {
@@ -310,12 +323,9 @@ export const SupportersContributorsScreen = {
         <div class="supporters-brand-face supporters-brand-front">
           <div class="supporters-brand-copy">
             <img class="supporters-brand-logo" src="assets/brand/app_logo_wordmark.png" alt="Nuvio" />
-            <div class="supporters-brand-heading-group">
-              <h1 class="supporters-title">${escapeHtml(t("supporters_contributors_title", {}, "Supporters & Contributors"))}</h1>
-              <p class="supporters-subtitle">${escapeHtml(t("supporters_contributors_supporters_copy", {}, "The people helping keep Nuvio online and in active development."))}</p>
-            </div>
-            <p class="supporters-primary-copy">${escapeHtml(t("supporters_contributors_supporters_copy", {}, "Supporters and donators help keep the project moving, fund infrastructure, and make room for ambitious features."))}</p>
+            <h1 class="supporters-title">${escapeHtml(t("supporters_contributors_title", {}, "Supporters & Contributors"))}</h1>
             <p class="supporters-secondary-copy">${escapeHtml(t("supporters_contributors_donate_copy", {}, "Nuvio will stay free and open source. If you want to support the project, you can help cover the time and infrastructure behind it."))}</p>
+            ${this.renderDonationProgress()}
           </div>
           <button class="supporters-donate-button supporters-focusable focusable" data-focus-key="brand:donate" data-action="showDonateQr">
             ${escapeHtml(t("supporters_contributors_donate_button", {}, "Donate to Nuvio"))}
@@ -332,6 +342,36 @@ export const SupportersContributorsScreen = {
           </button>
         </div>
       </section>
+    `;
+  },
+
+  renderDonationProgress() {
+    const supportersState = this.state?.supporters || {};
+    const progress = this.state?.donationProgress;
+    const percent = Number.isFinite(progress) ? progress : 0;
+    const message = supportersState.error
+      ? supportersState.error
+      : supportersState.loading && progress == null
+        ? t("supporters_contributors_loading_donation_progress", {}, "Loading funding progress...")
+        : percent >= 100
+          ? t(
+              "supporters_contributors_donation_progress_complete",
+              {},
+              "Covered. Additional support now goes to development."
+            )
+          : t(
+              "supporters_contributors_donation_progress_remaining",
+              {},
+              "After 100%, additional support goes to development."
+            );
+    return `
+      <div class="supporters-donation-progress${supportersState.error ? " has-error" : ""}">
+        <h2>${escapeHtml(t("supporters_contributors_donation_progress_title", {}, "This month’s server & maintenance"))}</h2>
+        <div class="supporters-donation-progress-track" aria-hidden="true">
+          <span style="width: ${supportersState.loading && progress == null ? 0 : percent}%"></span>
+        </div>
+        <p>${escapeHtml(message)}</p>
+      </div>
     `;
   },
 
@@ -375,7 +415,6 @@ export const SupportersContributorsScreen = {
             : t("contributors_loading", {}, "Loading GitHub contributors...");
       return `
         <div class="supporters-status">
-          ${renderLoadingIndicator()}
           <span>${escapeHtml(loading)}</span>
         </div>
       `;
@@ -486,7 +525,6 @@ export const SupportersContributorsScreen = {
             <h3>${escapeHtml(contributor.name)}</h3>
             ${role ? `<span class="supporters-role-badge">${escapeHtml(role)}</span>` : ""}
           </div>
-          <p>${escapeHtml(t("contributors_total_contributions", [contributor.totalContributions], `${contributor.totalContributions} total contributions`))}</p>
         </div>
         ${this.renderExternalIcon()}
       </article>
@@ -558,14 +596,9 @@ export const SupportersContributorsScreen = {
     const login = contributorLogin(contributor);
     const role = contributorRoleLabel(login);
     const supportLink = contributorSupportLink(login);
-    const subtitle = t(
-      "contributors_total_contributions",
-      [contributor.totalContributions],
-      `${contributor.totalContributions} total contributions`
-    );
     return this.renderDialogShell({
       title: contributor.name,
-      subtitle,
+      subtitle: "",
       body: `
         <div class="supporters-dialog-person-row">
           <span class="supporters-avatar supporters-avatar-image large">
@@ -676,6 +709,11 @@ export const SupportersContributorsScreen = {
     scrollSettingsContentItem(node);
   },
 
+  getBrandFocusTarget() {
+    const action = this.showDonateQr ? "hideDonateQr" : "showDonateQr";
+    return this.container?.querySelector?.(`.focusable[data-action="${action}"]`) || null;
+  },
+
   getDirectionalTarget(current, direction) {
     if (!current || this.dialog) {
       const nodes = visibleFocusableNodes(
@@ -697,24 +735,33 @@ export const SupportersContributorsScreen = {
       return this.container.querySelector(`.supporters-tab[data-tab="${this.selectedTab}"]`);
     }
 
-    if (current.dataset.action === "openItem" && (direction === "left" || direction === "right")) {
-      const tab = String(current.dataset.tab || this.selectedTab);
-      const tabIndex = TABS.indexOf(tab);
-      const nextTab = TABS[tabIndex + (direction === "left" ? -1 : 1)];
-      return nextTab
-        ? this.container.querySelector(`.supporters-tab[data-tab="${nextTab}"]`)
-        : null;
+    if (current.dataset.action === "openItem" && direction === "left") {
+      return this.getBrandFocusTarget();
+    }
+
+    if (current.dataset.action === "openItem" && direction === "right") {
+      return null;
     }
 
     if (current.dataset.action === "selectTab" && direction === "down") {
-      return sortedTabListItems(this.container, this.selectedTab)[0] || null;
+      return (
+        sortedTabListItems(this.container, this.selectedTab)[0] ||
+        this.container.querySelector(
+          `.supporters-retry-button[data-focus-key="retry:${this.selectedTab}"]`
+        ) ||
+        null
+      );
     }
 
     if (current.dataset.action === "selectTab" && (direction === "left" || direction === "right")) {
       const tabs = Array.from(this.container?.querySelectorAll?.(".supporters-tab") || []);
       const currentIndex = tabs.indexOf(current);
       const nextIndex = currentIndex + (direction === "left" ? -1 : 1);
-      return tabs[nextIndex] || null;
+      return tabs[nextIndex] || (direction === "left" ? this.getBrandFocusTarget() : null);
+    }
+
+    if (current.dataset.action === "retry" && direction === "left") {
+      return this.getBrandFocusTarget();
     }
 
     const nodes = visibleFocusableNodes(this.container);

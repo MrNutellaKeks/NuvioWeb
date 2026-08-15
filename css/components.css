@@ -7628,12 +7628,6 @@ button:focus-visible {
   margin-bottom: min(0.83vw, 16px); /* ATV 8dp -> 16px */
 }
 
-.supporters-brand-heading-group {
-  display: flex;
-  flex-direction: column;
-  gap: min(0.83vw, 16px); /* ATV 8dp -> 16px */
-}
-
 .supporters-title,
 .supporters-qr-copy h2,
 .supporters-dialog h2 {
@@ -7644,8 +7638,6 @@ button:focus-visible {
   font-weight: 600;
 }
 
-.supporters-subtitle,
-.supporters-primary-copy,
 .supporters-secondary-copy,
 .supporters-qr-copy p {
   margin: 0;
@@ -7654,14 +7646,52 @@ button:focus-visible {
   letter-spacing: min(0.026vw, 0.5px);
 }
 
-.supporters-subtitle,
 .supporters-secondary-copy,
 .supporters-qr-copy p {
   color: var(--text-secondary);
 }
 
-.supporters-primary-copy {
-  color: rgb(255 255 255 / 0.92);
+.supporters-donation-progress {
+  display: flex;
+  flex-direction: column;
+  gap: min(1.04vw, 20px); /* ATV 10dp -> 20px */
+}
+
+.supporters-donation-progress h2,
+.supporters-donation-progress p {
+  margin: 0;
+}
+
+.supporters-donation-progress h2 {
+  color: var(--text-color);
+  font-size: min(1.46vw, 28px); /* ATV titleSmall 14sp -> 28px */
+  line-height: min(2.08vw, 40px);
+  font-weight: 600;
+}
+
+.supporters-donation-progress p {
+  color: var(--text-secondary);
+  font-size: min(1.25vw, 24px); /* ATV bodySmall 12sp -> 24px */
+  line-height: min(1.67vw, 32px);
+}
+
+.supporters-donation-progress.has-error p {
+  color: var(--error-color, #cf6679);
+}
+
+.supporters-donation-progress-track {
+  width: 100%;
+  height: min(0.83vw, 16px); /* ATV 8dp -> 16px */
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--card-bg);
+}
+
+.supporters-donation-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--focus-color);
 }
 
 .supporters-donate-button,
@@ -7970,16 +8000,6 @@ button:focus-visible {
   padding: min(2.5vw, 48px); /* ATV 24dp -> 48px */
   font-size: min(1.46vw, 28px); /* ATV bodyMedium 14sp -> 28px */
   line-height: min(2.08vw, 40px);
-}
-
-.supporters-status {
-  flex-direction: column;
-  gap: min(1.46vw, 28px);
-}
-
-.supporters-status .nuvio-loading-indicator {
-  width: min(5vw, 96px);
-  height: min(5vw, 96px);
 }
 
 .supporters-error-state {

@@ -25,6 +25,7 @@ export function renderModernHomeLayout({
   heroItem = null,
   heroCandidates = [],
   continueWatchingItems = [],
+  upcomingItems = [],
   continueWatchingLoading = false,
   continueWatchingLoadingCount = 0,
   continueWatchingRenderLimit = 30,
@@ -150,6 +151,16 @@ export function renderModernHomeLayout({
               blurNextUp: blurContinueWatchingNextUp,
               cardStyle: continueWatchingCardStyle
             })}
+            ${renderContinueWatchingSection(upcomingItems, {
+              rowKey: "upcoming_section",
+              titleKey: "upcoming_section_title",
+              title: "Upcoming",
+              startIndex: continueWatchingItems.length,
+              itemLimit: upcomingItems.length,
+              useEpisodeThumbnails: useEpisodeThumbnailsInCw,
+              blurNextUp: blurContinueWatchingNextUp,
+              cardStyle: continueWatchingCardStyle
+            })}
             <div class="home-modern-catalogs">
               ${sectionsMarkup.join("")}
             </div>
@@ -162,15 +173,17 @@ export function renderModernHomeLayout({
 
 export function buildModernNavigationRows(container) {
   const rows = [];
-  const continueTrack = container?.querySelector(".home-row-continue .home-track");
-  if (continueTrack) {
+  const continueTracks = Array.from(
+    container?.querySelectorAll(".home-row-continue .home-track") || []
+  );
+  continueTracks.forEach((continueTrack) => {
     const continueNodes = Array.from(
       continueTrack.querySelectorAll(".home-content-card.focusable")
     );
     if (continueNodes.length) {
       rows.push(continueNodes);
     }
-  }
+  });
 
   const rowSections = Array.from(container?.querySelectorAll(".home-modern-row") || []);
   rowSections.forEach((section) => {
