@@ -110,9 +110,9 @@ export function getPosterOptions(state, options = {}) {
           ? t("library_manage_lists", {}, "Manage Lists")
           : state.sourceMode === LibrarySourceMode.SIMKL
             ? "Manage Simkl Status"
-          : state.isSaved
-            ? t("detail.removeFromLibrary", {}, "Remove from Library")
-            : t("detail.addToLibrary", {}, "Add to Library")
+            : state.isSaved
+              ? t("detail.removeFromLibrary", {}, "Remove from Library")
+              : t("detail.addToLibrary", {}, "Add to Library")
     });
   }
   if (includeWatched) {
@@ -379,11 +379,15 @@ export class PosterOptionsDialogController {
       normalizedAction === "confirmDestructiveSimklRemoval"
     ) {
       try {
-        await libraryRepository.applyMembershipChanges(this.listPicker.item, {
-          desiredMembership: this.listPicker.membership || {}
-        }, {
-          destructiveRemovalConfirmed: normalizedAction === "confirmDestructiveSimklRemoval"
-        });
+        await libraryRepository.applyMembershipChanges(
+          this.listPicker.item,
+          {
+            desiredMembership: this.listPicker.membership || {}
+          },
+          {
+            destructiveRemovalConfirmed: normalizedAction === "confirmDestructiveSimklRemoval"
+          }
+        );
         this.onChanged?.(this.state);
         this.destroy();
       } catch (error) {

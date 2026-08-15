@@ -98,15 +98,18 @@ export const TrackPreferencesStore = {
   },
 
   exportFeaturePayload(profileId = activeProfileId()) {
-    return readEntries(profileId).reduce((payload, entry) => {
-      const contentId = normalizeText(entry?.contentId);
-      const audio = normalizeAudioPreference(entry?.audio);
-      if (!contentId || !audio) return payload;
-      if (audio.language) payload[`audio_lang|${contentId}`] = audio.language;
-      if (audio.name) payload[`audio_name|${contentId}`] = audio.name;
-      if (audio.trackId) payload[`audio_track_id|${contentId}`] = audio.trackId;
-      return payload;
-    }, { ...readPassthrough(profileId) });
+    return readEntries(profileId).reduce(
+      (payload, entry) => {
+        const contentId = normalizeText(entry?.contentId);
+        const audio = normalizeAudioPreference(entry?.audio);
+        if (!contentId || !audio) return payload;
+        if (audio.language) payload[`audio_lang|${contentId}`] = audio.language;
+        if (audio.name) payload[`audio_name|${contentId}`] = audio.name;
+        if (audio.trackId) payload[`audio_track_id|${contentId}`] = audio.trackId;
+        return payload;
+      },
+      { ...readPassthrough(profileId) }
+    );
   },
 
   importFeaturePayload(rawFeature = {}, profileId = activeProfileId()) {

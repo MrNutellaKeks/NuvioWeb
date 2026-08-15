@@ -10,6 +10,7 @@ import { NuvioDialog } from "../../ui/components/nuvioDialog.js";
 import { detailWatchedEnrichmentService } from "../../data/repository/detailWatchedEnrichmentService.js";
 import { resolveExperienceRoute } from "./experienceModeRouting.js";
 import { Platform } from "../../platform/index.js";
+import { safeScrollIntoView } from "../../ui/navigation/scrollCompat.js";
 
 const PINNED_AVATAR_CATEGORIES = ["anime", "animation", "tv", "movie", "gaming"];
 const DEFAULT_PROFILE_COLOR = "#f5f5f5";
@@ -925,7 +926,7 @@ export const ProfileSelectionScreen = {
     }
 
     if (category) {
-      node.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+      safeScrollIntoView(node, { block: "nearest", inline: "nearest", behavior: "smooth" });
     }
   },
 

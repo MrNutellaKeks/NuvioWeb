@@ -36,7 +36,11 @@ function t(key, fallback = key) {
 }
 
 function escapeHtml(value = "") {
-  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 export const LicensesAttributionsScreen = {
@@ -47,10 +51,12 @@ export const LicensesAttributionsScreen = {
       <main class="licenses-screen">
         <header><h1>${escapeHtml(t("licenses_attributions_title", "Licenses & Attribution"))}</h1><p>${escapeHtml(t("licenses_attributions_section_data", "Data & services"))}</p></header>
         <div class="licenses-list">
-          ${SECTIONS.map((section) => `
+          ${SECTIONS.map(
+            (section) => `
             <section><h2>${escapeHtml(t(section.titleKey))}</h2>
               ${section.items.map(([id, url, license], index) => `<button class="license-row focusable" data-url="${escapeHtml(url)}" data-index="${index}"><strong>${escapeHtml(license ? id : t(`licenses_attributions_${id}_title`, id))}</strong><span>${escapeHtml(license || t(`licenses_attributions_${id}_body`, ""))}</span></button>`).join("")}
-            </section>`).join("")}
+            </section>`
+          ).join("")}
         </div>
       </main>`;
     this.onClickBound = this.onClick.bind(this);

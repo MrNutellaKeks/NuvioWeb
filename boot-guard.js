@@ -679,5 +679,4 @@
       }
     });
   }
-
 })(window, document);

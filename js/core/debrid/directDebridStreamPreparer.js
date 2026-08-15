@@ -1,8 +1,5 @@
 import { DebridSettingsStore } from "../../data/local/debridSettingsStore.js";
-import {
-  selectAutoPlayStream,
-  STREAM_AUTO_PLAY_MODE
-} from "../streams/streamAutoPlaySelector.js";
+import { selectAutoPlayStream, STREAM_AUTO_PLAY_MODE } from "../streams/streamAutoPlaySelector.js";
 import { DirectDebridResolver } from "./directDebridResolver.js";
 
 const MAX_BACKGROUND_PREPARES_PER_MINUTE = 6;
@@ -32,7 +29,10 @@ function consumeBudget() {
 }
 
 function isMagnetLink(value) {
-  return String(value || "").trim().toLowerCase().startsWith("magnet:");
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .startsWith("magnet:");
 }
 
 function playableStreamUrl(stream = {}) {
@@ -131,8 +131,7 @@ export function prioritizeDirectDebridCandidates(
       candidates.forEach((candidate) => {
         if (
           !prioritized.some(
-            (entry) =>
-              directDebridPreparationKey(entry) === directDebridPreparationKey(candidate)
+            (entry) => directDebridPreparationKey(entry) === directDebridPreparationKey(candidate)
           ) &&
           regex.test(searchableText(candidate))
         ) {

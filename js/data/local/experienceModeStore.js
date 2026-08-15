@@ -3,7 +3,9 @@ import { createProfileScopedStore } from "./profileScopedStore.js";
 const VALID_MODES = new Set(["ESSENTIAL", "ADVANCED"]);
 
 function normalize(value = {}) {
-  const mode = String(value?.mode || "").trim().toUpperCase();
+  const mode = String(value?.mode || "")
+    .trim()
+    .toUpperCase();
   return {
     mode: VALID_MODES.has(mode) ? mode : null,
     addonSetupSkipped: Boolean(value?.addonSetupSkipped)

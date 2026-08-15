@@ -10,7 +10,11 @@ function t(key, fallback) {
 }
 
 function escapeHtml(value = "") {
-  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 export const EssentialAddonSetupScreen = {
@@ -39,7 +43,11 @@ export const EssentialAddonSetupScreen = {
     ExperienceModeStore.setForProfile(profileId, { addonSetupSkipped: skipped });
     await ProfileSettingsSyncService.push(profileId);
     if (skipped) {
-      await Router.navigate("home", { forceReload: true }, { replaceHistory: true, skipStackPush: true });
+      await Router.navigate(
+        "home",
+        { forceReload: true },
+        { replaceHistory: true, skipStackPush: true }
+      );
     } else {
       await Router.navigate("plugin", { essentialSetup: true });
     }

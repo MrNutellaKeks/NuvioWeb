@@ -6,6 +6,7 @@ import { Environment } from "../../../platform/environment.js";
 import { LayoutPreferences } from "../../../data/local/layoutPreferences.js";
 import { I18n } from "../../../i18n/index.js";
 import { focusWithoutAutoScroll } from "../../components/sidebarNavigation.js";
+import { safeScrollTo } from "../../navigation/scrollCompat.js";
 import {
   posterItemFromNode,
   PosterOptionsDialogController
@@ -78,7 +79,7 @@ function setContainerScrollTop(container, top, behavior = "auto") {
   const resolvedTop = Math.max(0, Math.min(maxScrollTop, Number(top || 0)));
   if (behavior === "smooth") {
     if (typeof container.scrollTo === "function") {
-      container.scrollTo({ top: resolvedTop, behavior: "smooth" });
+      safeScrollTo(container, resolvedTop, "smooth");
     } else {
       container.scrollTop = resolvedTop;
     }

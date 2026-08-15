@@ -152,26 +152,26 @@ export const ScreenUtils = {
     let target = null;
 
     if (direction === "up" || direction === "down") {
-        const nearestPrimary = candidates.reduce((min, entry) => {
-          const primary = Math.abs(entry.dy);
-          return Math.min(min, primary);
-        }, Number.POSITIVE_INFINITY);
-        const rowTolerance = Math.max(currentRect.height * 0.9, 42);
-        const nearestRow = candidates.filter((entry) => {
-          const primary = Math.abs(entry.dy);
-          return primary <= nearestPrimary + rowTolerance;
-        });
-        const alignedInRow = nearestRow
-          .filter((entry) => entry.aligned)
-          .sort((left, right) => Math.abs(left.dx) - Math.abs(right.dx));
-        const rowSorted = nearestRow.sort((left, right) => {
-          const sec = Math.abs(left.dx) - Math.abs(right.dx);
-          if (sec !== 0) {
-            return sec;
-          }
-          return Math.abs(left.dy) - Math.abs(right.dy);
-        });
-        target = alignedInRow[0]?.node || rowSorted[0]?.node || null;
+      const nearestPrimary = candidates.reduce((min, entry) => {
+        const primary = Math.abs(entry.dy);
+        return Math.min(min, primary);
+      }, Number.POSITIVE_INFINITY);
+      const rowTolerance = Math.max(currentRect.height * 0.9, 42);
+      const nearestRow = candidates.filter((entry) => {
+        const primary = Math.abs(entry.dy);
+        return primary <= nearestPrimary + rowTolerance;
+      });
+      const alignedInRow = nearestRow
+        .filter((entry) => entry.aligned)
+        .sort((left, right) => Math.abs(left.dx) - Math.abs(right.dx));
+      const rowSorted = nearestRow.sort((left, right) => {
+        const sec = Math.abs(left.dx) - Math.abs(right.dx);
+        if (sec !== 0) {
+          return sec;
+        }
+        return Math.abs(left.dy) - Math.abs(right.dy);
+      });
+      target = alignedInRow[0]?.node || rowSorted[0]?.node || null;
     } else {
       const nearestPrimary = candidates.reduce((min, entry) => {
         const primary = Math.abs(entry.dx);

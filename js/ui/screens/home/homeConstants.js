@@ -46,3 +46,10 @@ export const HOME_BACKGROUND_RENDER_DELAY_LEGACY_MS = 180;
 export const HOME_MODERN_HERO_BACKDROP_CROSSFADE_MS = 400;
 export const HOME_RETURN_FOCUS_STATE_KEY = "homeReturnFocusState";
 export const HOME_PERF_DEBUG = Boolean(globalThis.__NUVIO_DEBUG_HOME_PERF__);
+
+// Tizen 4 (Chromium 56) specific tighter limits
+export const TIZEN4_CW_RENDER_BATCH_ITEMS = 8;
+export const TIZEN4_HOME_MAX_ITEMS_PER_ROW = 6;
+export const TIZEN4_HOME_LOADING_ROW_ITEMS = 5;
+export const TIZEN4_HOME_INITIAL_CATALOG_LOAD = 4;
+export const TIZEN4_HOME_BACKGROUND_RENDER_DELAY_MS = 200;

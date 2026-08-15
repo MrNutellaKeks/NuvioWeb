@@ -260,11 +260,17 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
       this.simklErrorMessage = null;
       try {
         await SimklAuthService.startPinAuth();
-        this.simklStatusMessage = t("simkl_status_enter_code", {}, "Enter the code on Simkl to finish connecting.");
+        this.simklStatusMessage = t(
+          "simkl_status_enter_code",
+          {},
+          "Enter the code on Simkl to finish connecting."
+        );
         this.startSimklPolling();
       } catch (error) {
         this.simklErrorMessage = String(
-          error?.message || error || t("simkl_error_network", {}, "Unable to reach Simkl. Try again.")
+          error?.message ||
+            error ||
+            t("simkl_error_network", {}, "Unable to reach Simkl. Try again.")
         );
       }
       this.expandedProvider = "simkl";
@@ -321,7 +327,9 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
       } catch (error) {
         this.simklStatusMessage = null;
         this.simklErrorMessage = String(
-          error?.message || error || t("simkl_error_network", {}, "Unable to reach Simkl. Try again.")
+          error?.message ||
+            error ||
+            t("simkl_error_network", {}, "Unable to reach Simkl. Try again.")
         );
       }
     });
@@ -329,7 +337,9 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
       this.showSimklInfo = !this.showSimklInfo;
     });
     this.actionMap.set("tracking:simklVisit", () => window.open?.("https://simkl.com", "_blank"));
-    this.actionMap.set("tracking:simklDocs", () => window.open?.("https://api.simkl.org/guides/sync", "_blank"));
+    this.actionMap.set("tracking:simklDocs", () =>
+      window.open?.("https://api.simkl.org/guides/sync", "_blank")
+    );
     this.actionMap.set("tracking:librarySource", () =>
       this.openTrackingChoice({
         title: t("trakt_library_source_title", {}, "Library source"),
@@ -404,16 +414,22 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
       this.renderActionRow({
         focusKey: `tracking:${id}`,
         leadingIconSrc:
-          id === "simkl"
-            ? "assets/icons/simkl_tv_glyph.svg"
-            : "assets/icons/trakt_tv_glyph.svg",
+          id === "simkl" ? "assets/icons/simkl_tv_glyph.svg" : "assets/icons/trakt_tv_glyph.svg",
         title,
         subtitle: connected
-          ? t(id === "simkl" ? "simkl_connected_as" : "trakt_connected_as", [username || `${title} user`], `Connected as ${username || `${title} user`}`)
+          ? t(
+              id === "simkl" ? "simkl_connected_as" : "trakt_connected_as",
+              [username || `${title} user`],
+              `Connected as ${username || `${title} user`}`
+            )
           : waiting
             ? t("tracking_status_waiting", {}, "Waiting for approval")
             : t(id === "simkl" ? "simkl_connect" : "trakt_connect", {}, `Connect ${title}`),
-        value: connected ? t("tracking_status_connected", {}, "Connected") : waiting ? t("tracking_status_waiting", {}, "Waiting") : t("tracking_status_disconnected", {}, "Not connected")
+        value: connected
+          ? t("tracking_status_connected", {}, "Connected")
+          : waiting
+            ? t("tracking_status_waiting", {}, "Waiting")
+            : t("tracking_status_disconnected", {}, "Not connected")
       });
 
     return `
@@ -458,7 +474,10 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
 
   renderTrackingTraktAccount(auth, connected, waiting) {
     if (connected) {
-      const tokenRemainingMs = auth.createdAt && auth.expiresIn ? Math.max(0, (Number(auth.createdAt) + Number(auth.expiresIn)) * 1000 - Date.now()) : 0;
+      const tokenRemainingMs =
+        auth.createdAt && auth.expiresIn
+          ? Math.max(0, (Number(auth.createdAt) + Number(auth.expiresIn)) * 1000 - Date.now())
+          : 0;
       return `<div class="settings-trakt-card settings-tracking-account-card"><h3 class="settings-trakt-card-title">${escapeHtml(t("trakt_account_login", {}, "Trakt account"))}</h3><p class="settings-trakt-body-copy">${escapeHtml(t("trakt_connected_as", [auth.username || "Trakt user"], `Connected as ${auth.username || "Trakt user"}`))}</p>${tokenRemainingMs ? `<p class="settings-trakt-meta-copy">${escapeHtml(t("trakt_token_refreshes", [formatCountdown(tokenRemainingMs)], `Token refreshes in ${formatCountdown(tokenRemainingMs)}`))}</p>` : ""}${this.renderTraktStatsStrip(this.traktStats, this.traktStatsLoading)}${this.renderActionRow({ focusKey: "tracking:traktDisconnect", title: t("trakt_disconnect", {}, "Disconnect Trakt"), subtitle: t("trakt_disconnect_subtitle", {}, "Remove this profile's Trakt connection") })}</div>`;
     }
     return `<div class="settings-trakt-card settings-tracking-account-card"><h3 class="settings-trakt-card-title">${escapeHtml(t("trakt_connect", {}, "Connect Trakt"))}</h3>${waiting ? `<p class="settings-trakt-body-copy">${escapeHtml(t("trakt_awaiting_instruction", {}, "Open the Trakt activation page on another device and enter this code."))}</p><strong>${escapeHtml(auth.verificationUrl || "https://trakt.tv/activate")}</strong><div class="settings-trakt-code">${escapeHtml(auth.userCode || "-")}</div><p class="settings-trakt-meta-copy">${escapeHtml(t("trakt_code_expires", [formatCountdown(Number(auth.expiresAt) - Date.now())], `Code expires in ${formatCountdown(Number(auth.expiresAt) - Date.now())}`))}</p>` : `<p class="settings-trakt-body-copy">${escapeHtml(t("trakt_manual_code_description", {}, "A manual activation code will be shown here. No QR code is required."))}</p>${this.renderActionRow({ focusKey: "tracking:traktConnect", title: t("trakt_connect", {}, "Connect Trakt"), subtitle: TraktAuthService.hasRequiredCredentials() ? t("trakt_generate_code", {}, "Generate activation code") : t("trakt_missing_credentials", {}, "Missing Trakt client credentials") })}`}${this.traktStatusMessage ? `<p class="settings-trakt-message">${escapeHtml(this.traktStatusMessage)}</p>` : ""}${this.traktErrorMessage ? `<p class="settings-trakt-error">${escapeHtml(this.traktErrorMessage)}</p>` : ""}</div>`;
@@ -500,11 +519,7 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
         return;
       }
       if (result.type === "pending") {
-        this.simklStatusMessage = t(
-          "simkl_status_waiting",
-          {},
-          "Waiting for Simkl approval…"
-        );
+        this.simklStatusMessage = t("simkl_status_waiting", {}, "Waiting for Simkl approval…");
       } else if (result.type === "expired" || result.type === "invalidated") {
         this.simklErrorMessage = t(
           "simkl_error_code_expired",
@@ -733,11 +748,7 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
         return;
       }
       if (result.type === "pending") {
-        this.traktStatusMessage = t(
-          "tracking_status_waiting",
-          {},
-          "Waiting for approval"
-        );
+        this.traktStatusMessage = t("tracking_status_waiting", {}, "Waiting for approval");
         this.traktErrorMessage = null;
       } else if (result.type === "slow_down") {
         this.traktStatusMessage = t(
@@ -757,11 +768,7 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
       } else if (result.type === "denied") {
         this.stopTraktPolling();
         this.traktStatusMessage = null;
-        this.traktErrorMessage = t(
-          "trakt_error_denied",
-          {},
-          "Authorization denied on Trakt."
-        );
+        this.traktErrorMessage = t("trakt_error_denied", {}, "Authorization denied on Trakt.");
       } else if (result.type === "already_used") {
         this.stopTraktPolling();
         this.traktStatusMessage = null;
@@ -773,8 +780,7 @@ export const TraktScreen = Object.assign(Object.create(SettingsScreen), {
       } else if (result.type === "failed") {
         this.traktStatusMessage = null;
         this.traktErrorMessage =
-          result.message ||
-          t("trakt_error_network_retry", {}, "Network error, please try again");
+          result.message || t("trakt_error_network_retry", {}, "Network error, please try again");
       }
       await this.render();
       const nextState = TraktAuthService.getCurrentAuthState();

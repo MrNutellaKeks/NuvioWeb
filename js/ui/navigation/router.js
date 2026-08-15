@@ -50,9 +50,9 @@ const NON_BACKSTACK_ROUTES = new Set([
   "profileSelection",
   "authQrSignIn",
   "authSignIn",
-  "syncCode"
-  ,"experienceModeSelection"
-  ,"essentialAddonSetup"
+  "syncCode",
+  "experienceModeSelection",
+  "essentialAddonSetup"
 ]);
 const WEBOS_RESUME_ROUTE_KEY = "webos_last_resume_route";
 const WEBOS_RESUME_ROUTE_TTL_MS = 20 * 60 * 1000;
@@ -285,9 +285,7 @@ export const Router = {
 
   isWebOsResumeRouteRestorable(routeName = this.current) {
     const route = String(routeName || "").trim();
-    return Boolean(
-      route && this.routes[route] && !WEBOS_NON_RESTORABLE_ROUTES.has(route)
-    );
+    return Boolean(route && this.routes[route] && !WEBOS_NON_RESTORABLE_ROUTES.has(route));
   },
 
   persistWebOsResumeRoute(routeName = this.current, params = this.currentParams) {

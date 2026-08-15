@@ -34,6 +34,7 @@ import {
 import { I18n } from "../../../i18n/index.js";
 import { NuvioDialog } from "../../components/nuvioDialog.js";
 import { renderLoadingIndicator } from "../../components/loadingIndicator.js";
+import { safeScrollIntoView } from "../../navigation/scrollCompat.js";
 import { resolveMovieStreamIdentity } from "./movieStreamIdentity.js";
 import {
   posterItemFromNode,
@@ -2456,15 +2457,15 @@ export const MetaDetailsScreen = {
       (Array.isArray(watchedItems) ? watchedItems : [])
         .filter((entry) => entry?.episode != null)
         .map(
-          (entry) =>
-            `${String(entry.contentId || "").toLowerCase()}:${Number(entry.episode || 0)}`
+          (entry) => `${String(entry.contentId || "").toLowerCase()}:${Number(entry.episode || 0)}`
         )
     );
     (this.episodes || []).forEach((video) => {
-      const match = String(video?.id || "").match(
-        /^(mal|anidb|anilist|kitsu):(\d+):(\d+)/i
-      );
-      if (!match || !animeWatchedKeys.has(`${match[1].toLowerCase()}:${match[2]}:${Number(match[3])}`)) {
+      const match = String(video?.id || "").match(/^(mal|anidb|anilist|kitsu):(\d+):(\d+)/i);
+      if (
+        !match ||
+        !animeWatchedKeys.has(`${match[1].toLowerCase()}:${match[2]}:${Number(match[3])}`)
+      ) {
         return;
       }
       const season = Number(video?.season || 0);
@@ -5437,11 +5438,15 @@ export const MetaDetailsScreen = {
     }
     if (action === "saveLibraryLists" || action === "confirmDestructiveSimklRemoval") {
       try {
-        await libraryRepository.applyMembershipChanges(this.libraryListMenu.item, {
-          desiredMembership: this.libraryListMenu.membership || {}
-        }, {
-          destructiveRemovalConfirmed: action === "confirmDestructiveSimklRemoval"
-        });
+        await libraryRepository.applyMembershipChanges(
+          this.libraryListMenu.item,
+          {
+            desiredMembership: this.libraryListMenu.membership || {}
+          },
+          {
+            destructiveRemovalConfirmed: action === "confirmDestructiveSimklRemoval"
+          }
+        );
         this.isSavedInLibrary = Object.values(this.libraryListMenu.membership || {}).some(Boolean);
         this.closeHeroMenus({ restoreFocus: false });
         this.syncDetailActionButtons();
@@ -6192,9 +6197,12 @@ export const MetaDetailsScreen = {
     ) {
       return;
     }
-    this.trailerAutoplayTimer = setTimeout(() => {
-      this.playTrailer({ muted: false, restart: true, initiatedByUser: false });
-    }, Math.min(15, Math.max(0, Number(PlayerSettingsStore.get().trailerDelaySeconds ?? 7))) * 1000);
+    this.trailerAutoplayTimer = setTimeout(
+      () => {
+        this.playTrailer({ muted: false, restart: true, initiatedByUser: false });
+      },
+      Math.min(15, Math.max(0, Number(PlayerSettingsStore.get().trailerDelaySeconds ?? 7))) * 1000
+    );
   },
 
   detachTrailerMediaListeners() {
@@ -7723,7 +7731,7 @@ export const MetaDetailsScreen = {
         }
       }
     } else if (typeof target.scrollIntoView === "function") {
-      target.scrollIntoView({ block: "nearest", inline: "nearest" });
+      safeScrollIntoView(target, { block: "nearest", inline: "nearest" });
     }
     if (!preserveVerticalScroll) {
       this.syncDetailScrollBounds(target);

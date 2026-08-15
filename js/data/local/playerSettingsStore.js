@@ -256,13 +256,27 @@ export function normalizePlayerSettings(settings = {}) {
     ...DEFAULTS,
     ...persistentSettings,
     trailerAutoplay: persistentSettings.trailerAutoplay ?? DEFAULTS.trailerAutoplay,
-    trailerDelaySeconds: Math.min(15, Math.max(0, Math.trunc(Number(persistentSettings.trailerDelaySeconds ?? 7)) || 0)),
+    trailerDelaySeconds: Math.min(
+      15,
+      Math.max(0, Math.trunc(Number(persistentSettings.trailerDelaySeconds ?? 7)) || 0)
+    ),
     loadingOverlayEnabled: persistentSettings.loadingOverlayEnabled !== false,
     showPlayerLoadingStatus: persistentSettings.showPlayerLoadingStatus !== false,
     pauseOverlayEnabled: persistentSettings.pauseOverlayEnabled !== false,
     parentalGuideEnabled: persistentSettings.parentalGuideEnabled !== false,
-    autoSkipSegmentTypes: [...new Set((Array.isArray(persistentSettings.autoSkipSegmentTypes) ? persistentSettings.autoSkipSegmentTypes : []).map((entry) => String(entry).toLowerCase()).filter((entry) => ["intro", "recap", "outro"].includes(entry)))],
-    addonSubtitleStartupMode: ["FAST_STARTUP", "PREFERRED_ONLY", "ALL_SUBTITLES"].includes(String(persistentSettings.addonSubtitleStartupMode || "").toUpperCase())
+    autoSkipSegmentTypes: [
+      ...new Set(
+        (Array.isArray(persistentSettings.autoSkipSegmentTypes)
+          ? persistentSettings.autoSkipSegmentTypes
+          : []
+        )
+          .map((entry) => String(entry).toLowerCase())
+          .filter((entry) => ["intro", "recap", "outro"].includes(entry))
+      )
+    ],
+    addonSubtitleStartupMode: ["FAST_STARTUP", "PREFERRED_ONLY", "ALL_SUBTITLES"].includes(
+      String(persistentSettings.addonSubtitleStartupMode || "").toUpperCase()
+    )
       ? String(persistentSettings.addonSubtitleStartupMode).toUpperCase()
       : "ALL_SUBTITLES",
     addonSubtitleStartupModeAutoPreferred: Boolean(
@@ -317,9 +331,7 @@ export function normalizePlayerSettings(settings = {}) {
     stillWatchingEpisodeThreshold: normalizeStillWatchingThreshold(
       settings.stillWatchingEpisodeThreshold ?? DEFAULTS.stillWatchingEpisodeThreshold
     ),
-    osdClockEnabled: Boolean(
-      persistentSettings.osdClockEnabled ?? DEFAULTS.osdClockEnabled
-    ),
+    osdClockEnabled: Boolean(persistentSettings.osdClockEnabled ?? DEFAULTS.osdClockEnabled),
     subtitlesEnabled: true,
     secondaryPreferredAudioLanguage: (() => {
       const normalized = String(

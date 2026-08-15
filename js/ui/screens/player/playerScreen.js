@@ -28,6 +28,7 @@ import {
 import { localMediaTracksRepository } from "../../../data/repository/localMediaTracksRepository.js";
 import { localMediaSubtitleRepository } from "../../../data/repository/localMediaSubtitleRepository.js";
 import { localMediaBitmapSubtitleRepository } from "../../../data/repository/localMediaBitmapSubtitleRepository.js";
+import { safeScrollIntoView } from "../../navigation/scrollCompat.js";
 import { subtitleRepository } from "../../../data/repository/subtitleRepository.js";
 import { streamRepository } from "../../../data/repository/streamRepository.js";
 import { addonRepository } from "../../../data/repository/addonRepository.js";
@@ -16877,7 +16878,7 @@ export const PlayerScreen = {
 
     const focusedCard = panel.querySelector(".player-source-card.focused");
     if (focusedCard) {
-      focusedCard.scrollIntoView({ block: "nearest", inline: "nearest" });
+      safeScrollIntoView(focusedCard, { block: "nearest", inline: "nearest" });
     }
   },
 
