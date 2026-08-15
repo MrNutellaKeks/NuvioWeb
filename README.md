@@ -18,6 +18,19 @@
 
 </div>
 
+> ⚠️ **This fork (`MrNutellaKeks/NuvioWeb`) is a specialized build for Samsung Tizen 4 (2018 TVs, Chromium 56).**
+>
+> - **Use this fork only if you target Tizen 4 / 2018 Samsung TVs.**
+> - **For all other platforms (Tizen 5+, webOS, desktop, general development), use the upstream repository:** [NuvioMedia/NuvioWeb](https://github.com/NuvioMedia/NuvioWeb)
+>
+> This fork contains aggressive performance optimizations for Chromium 56:
+>
+> - Reduced item limits (rows, catalog, continue watching)
+> - Disabled spring-scroll animations (snap-only scrolling)
+> - Disabled progressive rendering to avoid rAF contention
+> - Increased background render delays
+> - Tizen 4 detection via `Platform.isTizen4()`
+
 ## About
 
 NuvioTV Web is the web codebase for the Nuvio TV experience on Smart TVs.
@@ -32,8 +45,12 @@ The project is optimized for a TV-first experience, with remote-control navigati
 
 ### Compatibility requirement
 
-NuvioTV Web officially supports **Samsung Tizen TVs from 2018 onward** and
-**LG webOS TVs from 2020 onward**.
+This fork officially supports **Samsung Tizen TVs from 2018 onward (Tizen 4.0+, Chromium 56)**.
+
+The upstream repository [NuvioMedia/NuvioWeb](https://github.com/NuvioMedia/NuvioWeb) supports:
+
+- Samsung Tizen TVs from 2018 onward
+- LG webOS TVs from 2020 onward
 
 ### Nuvio WebTV Installer
 
@@ -64,6 +81,8 @@ chmod +x Nuvio-WebTV-Installer-Linux-*.AppImage
 
 ### Samsung Tizen
 
+> **Hinweis:** Dieser Fork baut **nur für Tizen 4 (2018 TVs, Chromium 56)**. Für neuere Tizen-Versionen nutze den Upstream.
+
 #### TizenBrew
 
 - Open TizenBrew on your Samsung TV.
@@ -72,9 +91,13 @@ chmod +x Nuvio-WebTV-Installer-Linux-*.AppImage
 
 #### Manual WGT install
 
-Download the latest `.wgt` package from [GitHub Releases](https://github.com/NuvioMedia/NuvioWeb/releases/latest) and install it with your preferred Samsung/Tizen development workflow.
+Download the latest `.wgt` package from [GitHub Releases](https://github.com/MrNutellaKeks/NuvioWeb/releases/latest) and install it with your preferred Samsung/Tizen development workflow.
+
+> ⚠️ Die Releases in diesem Fork enthalten nur Tizen-4-Builds. Für webOS und neuere Tizen siehe Upstream-Releases.
 
 ### LG webOS
+
+> **Hinweis:** Dieser Fork unterstützt **kein webOS**. Für webOS nutze den Upstream: [NuvioMedia/NuvioWeb](https://github.com/NuvioMedia/NuvioWeb).
 
 #### Homebrew Channel
 
@@ -91,7 +114,7 @@ https://raw.githubusercontent.com/NuvioMedia/NuvioTVWebOS/main/webosbrew/apps.js
 
 #### Manual IPK install
 
-Download the latest `.ipk` package from [GitHub Releases](https://github.com/NuvioMedia/NuvioWeb/releases/latest).
+Download the latest `.ipk` package from [Upstream GitHub Releases](https://github.com/NuvioMedia/NuvioWeb/releases/latest).
 
 Enable Developer Mode and Key Server by following the webOS Homebrew guide:
 
@@ -103,9 +126,11 @@ Then install the package with webOS Dev Manager or your preferred webOS developm
 
 ## Platform Repositories
 
-- TizenBrew wrapper: `NuvioMedia/NuvioTVTizen`
-- webOS metadata repository: `NuvioMedia/NuvioTVWebOS`
-- Desktop installer: `NuvioMedia/NuvioWebTVInstaller`
+- TizenBrew wrapper (Upstream): `NuvioMedia/NuvioTVTizen`
+- webOS metadata repository (Upstream): `NuvioMedia/NuvioTVWebOS`
+- Desktop installer (Upstream): `NuvioMedia/NuvioWebTVInstaller`
+
+> Dieser Fork hat keine eigenen Wrapper-Repos. Für Tizen 4 nutze den Upstream-Wrapper `NuvioMedia/NuvioTVTizen` (funktioniert mit den hier gebauten `.wgt`).
 
 ## Development
 
@@ -120,10 +145,17 @@ Then install the package with webOS Dev Manager or your preferred webOS developm
 ### Setup
 
 ```bash
-git clone https://github.com/NuvioMedia/NuvioWeb.git
+# This fork (Tizen 4 only)
+git clone https://github.com/MrNutellaKeks/NuvioWeb.git
 cd NuvioWeb
 npm install
 ```
+
+> Für vollständige Entwicklung (Tizen 5+, webOS, Desktop) klone den Upstream:
+>
+> ```bash
+> git clone https://github.com/NuvioMedia/NuvioWeb.git
+> ```
 
 ### Run the Web App Locally
 
@@ -151,24 +183,9 @@ http://127.0.0.1:8080
 
 ### webOS
 
-Build a local `.ipk` package directly from this repository:
+> ⚠️ **webOS Builds sind in diesem Fork deaktiviert.** Nutze den Upstream für webOS-Entwicklung und Builds.
 
-```bash
-npm run package:webos
-```
-
-Install on a configured LG webOS TV:
-
-```bash
-npm run install:webos -- -d lg
-```
-
-Useful webOS commands:
-
-```bash
-npm run inspect:webos -- -d lg
-npm run logs:webos -- -d lg
-```
+[Upstream webOS Build Instructions](https://github.com/NuvioMedia/NuvioWeb#webos)
 
 ### Tizen
 
@@ -196,6 +213,8 @@ To package with a specific properties file:
 ```bash
 npm run package:tizen -- --env-source /absolute/path/to/local.properties
 ```
+
+> ⚠️ Dieser Befehl baut **nur Tizen 4**. Für webOS Builds nutze den Upstream.
 
 ## Syncing Custom Wrapper Projects
 
@@ -290,11 +309,11 @@ For comprehensive legal information, including our full disclaimer, third-party 
 
 ## Star History
 
-<a href="https://www.star-history.com/#NuvioMedia/NuvioWeb&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=mrnutellakeks%2Fnuvioweb&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=NuvioMedia/NuvioWeb&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=NuvioMedia/NuvioWeb&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=NuvioMedia/NuvioWeb&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=mrnutellakeks/nuvioweb&type=date&theme=dark&legend=top-left&sealed_token=7yPpviZ_jp4B2uov92vTzey5xrCxPY7QAv35OL9h1D9o1zuOY7sF4YpscBB-15XwZl1golPV-IuY55E-ld6n0891xES6lvauTDBfT5ApUdGcKDiIdA2CDXEGtVMYzpi2fMbT5-uk1bDv28Of15lH5nDv-TpD-uDGZy14IEKfBg3kA_hsXUvgnVRiead1" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=mrnutellakeks/nuvioweb&type=date&legend=top-left&sealed_token=7yPpviZ_jp4B2uov92vTzey5xrCxPY7QAv35OL9h1D9o1zuOY7sF4YpscBB-15XwZl1golPV-IuY55E-ld6n0891xES6lvauTDBfT5ApUdGcKDiIdA2CDXEGtVMYzpi2fMbT5-uk1bDv28Of15lH5nDv-TpD-uDGZy14IEKfBg3kA_hsXUvgnVRiead1" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=mrnutellakeks/nuvioweb&type=date&legend=top-left&sealed_token=7yPpviZ_jp4B2uov92vTzey5xrCxPY7QAv35OL9h1D9o1zuOY7sF4YpscBB-15XwZl1golPV-IuY55E-ld6n0891xES6lvauTDBfT5ApUdGcKDiIdA2CDXEGtVMYzpi2fMbT5-uk1bDv28Of15lH5nDv-TpD-uDGZy14IEKfBg3kA_hsXUvgnVRiead1" />
  </picture>
 </a>
 
