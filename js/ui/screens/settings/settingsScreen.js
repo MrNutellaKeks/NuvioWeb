@@ -78,6 +78,7 @@ import {
   setLegacySidebarExpanded
 } from "../../components/sidebarNavigation.js";
 import { renderLoadingIndicator } from "../../components/loadingIndicator.js";
+import { safeScrollIntoView } from "../../navigation/scrollCompat.js";
 import { getLatestAppUpdate } from "../../../core/update/appUpdateService.js";
 import { showAppUpdatePrompt } from "../../components/appUpdatePrompt.js";
 
@@ -1446,14 +1447,7 @@ function scrollIntoNearestView(node) {
   if (!node || typeof node.scrollIntoView !== "function") {
     return;
   }
-  try {
-    node.scrollIntoView({
-      block: "nearest",
-      inline: "nearest"
-    });
-  } catch (_) {
-    node.scrollIntoView();
-  }
+  safeScrollIntoView(node, { block: "nearest", inline: "nearest" });
 }
 
 function getScrollMax(node, axis = "y") {

@@ -77,7 +77,10 @@ function torboxFileName(file = {}, parentName = "") {
     candidates.find((candidate) => {
       if (normalizeDisplayName(candidate) === normalizeDisplayName(parentName)) return false;
       const pathWithoutExtension = pathName.replace(/\.[^.]+$/, "");
-      return candidate.includes(".") || normalizeDisplayName(candidate) !== normalizeDisplayName(pathWithoutExtension);
+      return (
+        candidate.includes(".") ||
+        normalizeDisplayName(candidate) !== normalizeDisplayName(pathWithoutExtension)
+      );
     }) ||
     candidates[0] ||
     null
@@ -114,9 +117,7 @@ export function mapTorboxCloudItems(
       Number.isFinite(Number(value))
     );
     const rawProgress = Number(progressValue);
-    const itemSize = [row?.size, row?.total_size].find((value) =>
-      Number.isFinite(Number(value))
-    );
+    const itemSize = [row?.size, row?.total_size].find((value) => Number.isFinite(Number(value)));
     return [
       {
         providerId,
@@ -142,11 +143,16 @@ export function mapPremiumizeCloudItems(
 ) {
   const groups = new Map();
   (Array.isArray(rows) ? rows : []).forEach((row) => {
-    const normalizedPath = String(row?.path || "").trim().replace(/^\/+|\/+$/g, "");
+    const normalizedPath = String(row?.path || "")
+      .trim()
+      .replace(/^\/+|\/+$/g, "");
     const name = firstNonBlank([row?.name, pathBasename(normalizedPath)]);
     if (!name) return;
     const id = firstNonBlank([row?.id]);
-    const segments = normalizedPath.split("/").map((part) => part.trim()).filter(Boolean);
+    const segments = normalizedPath
+      .split("/")
+      .map((part) => part.trim())
+      .filter(Boolean);
     const rootFile = segments.length <= 1;
     const itemName = rootFile ? name : segments[0] || name;
     const itemId = rootFile
@@ -169,9 +175,11 @@ export function mapPremiumizeCloudItems(
   return [...groups.values()]
     .map((group) => {
       const files = group.files.sort(
-        (left, right) => Number(!left.playable) - Number(!right.playable) || left.name.localeCompare(right.name)
+        (left, right) =>
+          Number(!left.playable) - Number(!right.playable) || left.name.localeCompare(right.name)
       );
-      const sizeBytes = files.reduce((total, file) => total + (Number(file.sizeBytes) || 0), 0) || null;
+      const sizeBytes =
+        files.reduce((total, file) => total + (Number(file.sizeBytes) || 0), 0) || null;
       return {
         providerId,
         providerName,

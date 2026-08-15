@@ -12,7 +12,11 @@ function t(key, fallback) {
 }
 
 function escapeHtml(value = "") {
-  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 const LAYOUTS = [
@@ -44,12 +48,17 @@ export const ExperienceModeSelectionScreen = {
         <h1>${escapeHtml(isLayout ? t("layout_selection_welcome", "Welcome to Nuvio") : t("experience_mode_choose_title", "Choose your Nuvio experience"))}</h1>
         <p>${escapeHtml(isLayout ? t("layout_selection_subtitle", "Choose how Nuvio should look on your TV.") : t("experience_mode_choose_subtitle", "Start simple or unlock every customization. You can switch anytime."))}</p>
         <div class="experience-mode-options ${isLayout ? "is-layout" : ""}">
-          ${isLayout
-            ? LAYOUTS.map((layout, index) => `<button class="experience-mode-card focusable" data-index="${index}" data-layout="${layout.id}"><strong>${escapeHtml(t(layout.key, layout.fallback))}</strong></button>`).join("")
-            : `
+          ${
+            isLayout
+              ? LAYOUTS.map(
+                  (layout, index) =>
+                    `<button class="experience-mode-card focusable" data-index="${index}" data-layout="${layout.id}"><strong>${escapeHtml(t(layout.key, layout.fallback))}</strong></button>`
+                ).join("")
+              : `
               <button class="experience-mode-card focusable" data-index="0" data-mode="ESSENTIAL"><strong>${escapeHtml(t("experience_mode_essential", "Essential"))}</strong><span>${escapeHtml(t("experience_mode_essential_card_subtitle", "Focused setup, add-ons, playback basics, Trakt, and account settings."))}</span></button>
               <button class="experience-mode-card focusable" data-index="1" data-mode="ADVANCED"><strong>${escapeHtml(t("experience_mode_advanced", "Advanced"))}</strong><span>${escapeHtml(t("experience_mode_advanced_card_subtitle", "Full settings, layout controls, catalog order, collections, plug-ins, and diagnostics."))}</span></button>
-            `}
+            `
+          }
         </div>
       </main>`;
   },
@@ -66,10 +75,14 @@ export const ExperienceModeSelectionScreen = {
     ExperienceModeStore.setForProfile(profileId, { mode: "ESSENTIAL" });
     await ProfileSettingsSyncService.push(profileId);
     const addons = await addonRepository.getInstalledAddons().catch(() => []);
-    await Router.navigate(addons.length ? "home" : "essentialAddonSetup", {}, {
-      replaceHistory: true,
-      skipStackPush: true
-    });
+    await Router.navigate(
+      addons.length ? "home" : "essentialAddonSetup",
+      {},
+      {
+        replaceHistory: true,
+        skipStackPush: true
+      }
+    );
   },
 
   async chooseLayout(layout) {
@@ -77,7 +90,11 @@ export const ExperienceModeSelectionScreen = {
     LayoutPreferences.setForProfile(profileId, { homeLayout: layout, hasChosenLayout: true });
     ExperienceModeStore.setForProfile(profileId, { mode: "ADVANCED" });
     await ProfileSettingsSyncService.push(profileId);
-    await Router.navigate("home", { forceReload: true }, { replaceHistory: true, skipStackPush: true });
+    await Router.navigate(
+      "home",
+      { forceReload: true },
+      { replaceHistory: true, skipStackPush: true }
+    );
   },
 
   async onClick(event) {

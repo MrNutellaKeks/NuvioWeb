@@ -689,9 +689,7 @@ class LibraryRepository {
   async getSourceMode() {
     const selectedMode = TraktSettingsStore.get().librarySourceMode;
     if (selectedMode === TraktLibrarySourceMode.SIMKL) {
-      return SimklAuthService.isAuthenticated()
-        ? LibrarySourceMode.SIMKL
-        : LibrarySourceMode.LOCAL;
+      return SimklAuthService.isAuthenticated() ? LibrarySourceMode.SIMKL : LibrarySourceMode.LOCAL;
     }
     if (selectedMode !== TraktLibrarySourceMode.TRAKT) {
       return LibrarySourceMode.LOCAL;

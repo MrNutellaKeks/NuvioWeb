@@ -130,13 +130,19 @@ function withVisibleCloudItems(state) {
   const typeItems = state.selectedCloudType
     ? providerItems.filter((item) => item.type === state.selectedCloudType)
     : providerItems;
-  const query = String(state.cloudSearchQuery || "").trim().toLowerCase();
+  const query = String(state.cloudSearchQuery || "")
+    .trim()
+    .toLowerCase();
   const visibleCloudItems = query
     ? typeItems.filter(
         (item) =>
-          String(item.name || "").toLowerCase().includes(query) ||
+          String(item.name || "")
+            .toLowerCase()
+            .includes(query) ||
           (item.files || []).some((file) =>
-            String(file.name || "").toLowerCase().includes(query)
+            String(file.name || "")
+              .toLowerCase()
+              .includes(query)
           )
       )
     : typeItems;
@@ -824,14 +830,14 @@ export class LibraryController {
           : picker === "cloud_type"
             ? this.state.selectedCloudType || ALL_KEY
             : picker === "list"
-          ? this.state.selectedListKey
-          : picker === "type"
-            ? this.state.selectedTypeKey
-            : picker === "genre"
-              ? this.state.selectedGenre || ALL_KEY
-              : picker === "year"
-                ? this.state.selectedYear || ALL_KEY
-                : this.state.selectedSortKey;
+              ? this.state.selectedListKey
+              : picker === "type"
+                ? this.state.selectedTypeKey
+                : picker === "genre"
+                  ? this.state.selectedGenre || ALL_KEY
+                  : picker === "year"
+                    ? this.state.selectedYear || ALL_KEY
+                    : this.state.selectedSortKey;
       const optionIndex = Math.max(
         0,
         options.findIndex((item) => item.value === currentValue)

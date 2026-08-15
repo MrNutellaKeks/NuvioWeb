@@ -9,6 +9,7 @@ import {
   PosterOptionsDialogController
 } from "../../components/posterOptionsMenu.js";
 import { renderLoadingIndicator } from "../../components/loadingIndicator.js";
+import { safeScrollTo } from "../../navigation/scrollCompat.js";
 
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w780";
@@ -299,8 +300,8 @@ export const CastDetailScreen = {
       }
       nextScrollLeft = Math.max(0, Math.min(track.scrollWidth - track.clientWidth, nextScrollLeft));
       if (Math.abs(nextScrollLeft - track.scrollLeft) >= 1) {
-        if (!instant && typeof track.scrollTo === "function") {
-          track.scrollTo({ left: nextScrollLeft, behavior: "smooth" });
+        if (!instant) {
+          safeScrollTo(track, undefined, nextScrollLeft, "smooth");
         } else {
           track.scrollLeft = nextScrollLeft;
         }
@@ -321,8 +322,8 @@ export const CastDetailScreen = {
     if (Math.abs(nextScrollTop - shell.scrollTop) < 1) {
       return;
     }
-    if (!instant && typeof shell.scrollTo === "function") {
-      shell.scrollTo({ top: nextScrollTop, behavior: "smooth" });
+    if (!instant) {
+      safeScrollTo(shell, nextScrollTop, undefined, "smooth");
     } else {
       shell.scrollTop = nextScrollTop;
     }

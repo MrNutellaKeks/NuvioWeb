@@ -33,7 +33,8 @@ async function listProviderItems(credential) {
     const items = [];
     for (const [path, type] of definitions) {
       const response = await DebridApi.torboxListCloudItems(apiKey, path);
-      if (!response.ok || response.data?.success === false) throw new Error(responseError(response));
+      if (!response.ok || response.data?.success === false)
+        throw new Error(responseError(response));
       items.push(
         ...mapTorboxCloudItems(response.data?.data, {
           providerId: provider.id,
@@ -110,7 +111,12 @@ export const cloudLibraryRepository = {
     if (!apiKey) return { status: "missingCredentials" };
     if (item.providerId === DEBRID_PROVIDER_IDS.PREMIUMIZE) {
       if (file.playbackUrl) {
-        return { status: "success", url: file.playbackUrl, filename: file.name, videoSizeBytes: file.sizeBytes };
+        return {
+          status: "success",
+          url: file.playbackUrl,
+          filename: file.name,
+          videoSizeBytes: file.sizeBytes
+        };
       }
       if (!file.id) return { status: "failed" };
       const response = await DebridApi.premiumizeCloudItemDetails(apiKey, file.id);
@@ -133,7 +139,12 @@ export const cloudLibraryRepository = {
       );
       const url = typeof response.data?.data === "string" ? response.data.data.trim() : "";
       return response.ok && response.data?.success !== false && url
-        ? { status: "success", url, filename: file.name || null, videoSizeBytes: file.sizeBytes || null }
+        ? {
+            status: "success",
+            url,
+            filename: file.name || null,
+            videoSizeBytes: file.sizeBytes || null
+          }
         : { status: "failed", message: responseError(response) };
     }
     return { status: "failed" };

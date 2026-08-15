@@ -66,7 +66,6 @@ import {
   CW_DISPLAY_SNAPSHOT_MAX_SCOPES,
   CW_ENRICHMENT_CACHE_KEY,
   CW_ENRICHMENT_CACHE_MAX_AGE_MS,
-  CW_ENTER_DELAY_MS,
   CW_HOLD_DELAY_MS,
   CW_INITIAL_RESOLVE_BUDGET_MS,
   CW_MAX_ENRICHMENT_CONCURRENCY,
@@ -99,7 +98,12 @@ import {
   HOME_PERF_DEBUG,
   HOME_RETURN_FOCUS_STATE_KEY,
   HOME_ROW_RETRY_TIMEOUT_MS,
-  HOME_ROW_TIMEOUT_MS
+  HOME_ROW_TIMEOUT_MS,
+  TIZEN4_CW_RENDER_BATCH_ITEMS,
+  TIZEN4_HOME_MAX_ITEMS_PER_ROW,
+  TIZEN4_HOME_LOADING_ROW_ITEMS,
+  TIZEN4_HOME_INITIAL_CATALOG_LOAD,
+  TIZEN4_HOME_BACKGROUND_RENDER_DELAY_MS
 } from "./homeConstants.js";
 import { resolveNextUpCandidates } from "./nextUpCandidateResolver.js";
 import {
@@ -3250,6 +3254,17 @@ export const HomeScreen = {
     if (!container) {
       return;
     }
+    // Tizen 4 (Chromium 56) - skip spring animation entirely, snap immediately
+    if (Platform.isTizen4()) {
+      const property = axis === "y" ? "scrollTop" : "scrollLeft";
+      const max =
+        axis === "y"
+          ? Math.max(0, container.scrollHeight - container.clientHeight)
+          : Math.max(0, container.scrollWidth - container.clientWidth);
+      const nextValue = Math.max(0, Math.min(max, Math.round(targetValue)));
+      container[property] = nextValue;
+      return;
+    }
     const property = axis === "y" ? "scrollTop" : "scrollLeft";
     const max =
       axis === "y"
@@ -3569,11 +3584,15 @@ export const HomeScreen = {
     return Boolean(globalThis.document?.body?.classList?.contains("performance-constrained"));
   },
 
-  // Constrained TVs (all webOS/Tizen, plus low-end) cannot afford the animated
-  // spring scroll on every focus move: each move runs a ~440ms rAF loop writing
-  // scrollTop/scrollLeft per frame, which stacks into seconds of input lag. Snap
-  // focus scrolling instead, matching the classic layout and Tizen behaviour.
   shouldUseImmediateFocusScroll() {
+    // Tizen 4 (Chromium 56) has no spring scroll support and suffers heavily from rAF loops
+    if (Platform.isTizen4()) {
+      return true;
+    }
+    // Constrained TVs (all webOS/Tizen, plus low-end) cannot afford the animated
+    // spring scroll on every focus move: each move runs a ~440ms rAF loop writing
+    // scrollTop/scrollLeft per frame, which stacks into seconds of input lag. Snap
+    // focus scrolling instead, matching the classic layout and Tizen behaviour.
     return Boolean(Platform.isTizen() || this.isPerformanceConstrained());
   },
 
@@ -3582,6 +3601,10 @@ export const HomeScreen = {
   },
 
   getRowItemLimit() {
+    // Tizen 4 (Chromium 56) - aggressive reduction
+    if (Platform.isTizen4()) {
+      return TIZEN4_HOME_MAX_ITEMS_PER_ROW;
+    }
     if (this.isLegacyTvRuntime()) {
       return HOME_MAX_ITEMS_PER_ROW_LEGACY_TV;
     }
@@ -3596,6 +3619,10 @@ export const HomeScreen = {
   },
 
   getContinueWatchingRenderBatchSize() {
+    // Tizen 4 (Chromium 56) - aggressive reduction
+    if (Platform.isTizen4()) {
+      return TIZEN4_CW_RENDER_BATCH_ITEMS;
+    }
     if (this.isLegacyTvRuntime()) {
       return CW_RENDER_BATCH_ITEMS_LEGACY_TV;
     }
@@ -3606,6 +3633,10 @@ export const HomeScreen = {
   },
 
   getLoadingRowItemCount() {
+    // Tizen 4 (Chromium 56) - aggressive reduction
+    if (Platform.isTizen4()) {
+      return TIZEN4_HOME_LOADING_ROW_ITEMS;
+    }
     if (this.isLegacyTvRuntime()) {
       return HOME_LOADING_ROW_ITEMS_LEGACY_TV;
     }
@@ -3618,6 +3649,10 @@ export const HomeScreen = {
   },
 
   getInitialCatalogLoadCount() {
+    // Tizen 4 (Chromium 56) - aggressive reduction
+    if (Platform.isTizen4()) {
+      return TIZEN4_HOME_INITIAL_CATALOG_LOAD;
+    }
     if (this.isPerformanceConstrained()) {
       if (this.isLegacyTvRuntime()) {
         return 4;
@@ -3641,6 +3676,10 @@ export const HomeScreen = {
   },
 
   getDeferredCatalogBatchSize() {
+    // Tizen 4 (Chromium 56) - aggressive reduction
+    if (Platform.isTizen4()) {
+      return 1;
+    }
     if (this.isPerformanceConstrained()) {
       return this.isLegacyTvRuntime() ? 2 : 4;
     }
@@ -3674,7 +3713,10 @@ export const HomeScreen = {
   shouldUseImmediateHorizontalScrollForNode(node) {
     return Boolean(
       node?.matches?.(".home-continue-card.focusable") &&
-      (Platform.isWebOS() || this.isPerformanceConstrained() || this.isLegacyTvRuntime())
+      (Platform.isWebOS() ||
+        this.isPerformanceConstrained() ||
+        this.isLegacyTvRuntime() ||
+        Platform.isTizen4())
     );
   },
 
@@ -3712,6 +3754,10 @@ export const HomeScreen = {
   },
 
   getBackgroundRenderDelay() {
+    // Tizen 4 (Chromium 56) - slower background render to avoid jank
+    if (Platform.isTizen4()) {
+      return TIZEN4_HOME_BACKGROUND_RENDER_DELAY_MS;
+    }
     if (this.isLegacyTvRuntime()) {
       const collectionCount = Array.isArray(this.collections) ? this.collections.length : 0;
       return collectionCount > 2
@@ -3725,6 +3771,10 @@ export const HomeScreen = {
   },
 
   shouldProgressivelyRenderDeferredRows() {
+    // Tizen 4 (Chromium 56) - disable progressive rendering to avoid rAF contention
+    if (Platform.isTizen4()) {
+      return false;
+    }
     if (Platform.isWebOS() && this.hasCollectionHomeRows()) {
       return false;
     }
@@ -4691,12 +4741,15 @@ export const HomeScreen = {
       normalizedAction === "confirmDestructiveSimklRemoval"
     ) {
       try {
-        await libraryRepository.applyMembershipChanges(this.posterListPicker.item, {
-          desiredMembership: this.posterListPicker.membership || {}
-        }, {
-          destructiveRemovalConfirmed:
-            normalizedAction === "confirmDestructiveSimklRemoval"
-        });
+        await libraryRepository.applyMembershipChanges(
+          this.posterListPicker.item,
+          {
+            desiredMembership: this.posterListPicker.membership || {}
+          },
+          {
+            destructiveRemovalConfirmed: normalizedAction === "confirmDestructiveSimklRemoval"
+          }
+        );
         this.posterListPicker = null;
         this.destroyHomeHoldDialog();
         this.restorePosterHoldMenuFocus();
@@ -8846,16 +8899,19 @@ export const HomeScreen = {
     const depthClass = this.layoutPrefs?.cardDepthEnabled
       ? ` home-card-depth${this.layoutPrefs.cardDepthPostersEnabled !== false ? " depth-posters" : ""}${this.layoutPrefs.cardDepthContinueWatchingEnabled !== false ? " depth-continue-watching" : ""}`
       : "";
-    const classicGradientClass = this.layoutMode === "classic" && this.layoutPrefs?.classicFocusGradientEnabled
-      ? " home-classic-focus-gradient"
-      : "";
+    const classicGradientClass =
+      this.layoutMode === "classic" && this.layoutPrefs?.classicFocusGradientEnabled
+        ? " home-classic-focus-gradient"
+        : "";
     const layoutClass = `home-layout-${this.layoutMode}${modernLandscapeLayoutClass}${modernHeroFullScreenBackdropClass}${modernSidebarLayoutClass}${depthClass}${classicGradientClass}`;
     const sizingStyle = [
       this.layoutMode === "modern" ? buildModernHomeSizingStyle(this.layoutPrefs) : "",
       `--card-depth-edge:${Number(this.layoutPrefs?.cardDepthEdgeStrength ?? 28) / 100}`,
       `--card-depth-sheen:${Number(this.layoutPrefs?.cardDepthSheenStrength ?? 10) / 100}`,
       `--card-depth-coverage:${Number(this.layoutPrefs?.cardDepthEdgeCoverage ?? 0)}%`
-    ].filter(Boolean).join(";");
+    ]
+      .filter(Boolean)
+      .join(";");
     const showPosterLabels = this.layoutPrefs?.posterLabelsEnabled !== false;
     const showCatalogAddonName = this.layoutPrefs?.catalogAddonNameEnabled !== false;
     const showCatalogTypeSuffix = this.layoutPrefs?.catalogTypeSuffixEnabled !== false;

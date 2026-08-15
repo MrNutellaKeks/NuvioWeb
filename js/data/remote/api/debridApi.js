@@ -18,7 +18,8 @@ async function requestJson(baseUrl, path, options = {}) {
         ...(options.headers || {})
       }
     };
-    response = (await fetchViaWebOsDebridAuthProxy(url, fetchOptions)) || (await fetch(url, fetchOptions));
+    response =
+      (await fetchViaWebOsDebridAuthProxy(url, fetchOptions)) || (await fetch(url, fetchOptions));
   } catch (error) {
     return {
       ok: false,
@@ -116,7 +117,11 @@ export const DebridApi = {
     return requestDebridAuthJson(PREMIUMIZE_BASE_URL, "token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body: formBody({ grant_type: "device_code", code: deviceCode, client_id: clientId }).toString()
+      body: formBody({
+        grant_type: "device_code",
+        code: deviceCode,
+        client_id: clientId
+      }).toString()
     });
   },
 

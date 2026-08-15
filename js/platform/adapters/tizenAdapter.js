@@ -1,5 +1,12 @@
 import { normalizeKeyEvent, isBackEvent } from "../sharedKeys.js";
 
+function getChromiumMajorVersionFromUA() {
+  const userAgent = String(globalThis.navigator?.userAgent || "");
+  const match = userAgent.match(/(?:chrome|chromium)\/(\d{2,3})/i);
+  const version = Number(match?.[1] || 0);
+  return Number.isFinite(version) ? version : 0;
+}
+
 function getAvplayApi() {
   const webapis = globalThis.webapis;
   const avplay =
@@ -113,6 +120,12 @@ export const tizenAdapter = {
       webosAvplay: false,
       tizenAvplay: Boolean(getAvplayApi())
     };
+  },
+
+  // Tizen 4 detection (Chromium 56) - used for aggressive performance optimizations
+  isTizen4() {
+    const chromium = getChromiumMajorVersionFromUA();
+    return chromium === 56;
   },
 
   prepareVideoElement() {}

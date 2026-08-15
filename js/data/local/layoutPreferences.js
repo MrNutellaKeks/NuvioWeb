@@ -68,7 +68,9 @@ function normalizeLayoutPreferences(value = {}) {
   const discoverLocation = String(
     value?.discoverLocation ?? (value?.searchDiscoverEnabled === false ? "off" : "in_search")
   ).toLowerCase();
-  const continueWatchingCardStyle = String(merged.continueWatchingCardStyle || "card").toLowerCase();
+  const continueWatchingCardStyle = String(
+    merged.continueWatchingCardStyle || "card"
+  ).toLowerCase();
 
   return {
     ...merged,
@@ -83,7 +85,13 @@ function normalizeLayoutPreferences(value = {}) {
       ? discoverLocation
       : "in_search",
     searchDiscoverEnabled: discoverLocation !== "off",
-    heroCatalogKeys: [...new Set((Array.isArray(merged.heroCatalogKeys) ? merged.heroCatalogKeys : []).map(String).filter(Boolean))],
+    heroCatalogKeys: [
+      ...new Set(
+        (Array.isArray(merged.heroCatalogKeys) ? merged.heroCatalogKeys : [])
+          .map(String)
+          .filter(Boolean)
+      )
+    ],
     modernLandscapePostersEnabled: Boolean(merged.modernLandscapePostersEnabled),
     modernHeroFullScreenBackdropEnabled: Boolean(merged.modernHeroFullScreenBackdropEnabled),
     focusedPosterBackdropExpandEnabled: Boolean(merged.focusedPosterBackdropExpandEnabled),
@@ -102,12 +110,21 @@ function normalizeLayoutPreferences(value = {}) {
     posterCardCornerRadiusDp: Math.max(0, Number(merged.posterCardCornerRadiusDp ?? 12) || 12),
     fastHorizontalNavigationEnabled: Boolean(
       value?.fastHorizontalNavigationEnabled ??
-        LocalStore.get("fastHorizontalNavigationEnabled", false)
+      LocalStore.get("fastHorizontalNavigationEnabled", false)
     ),
     cardDepthEnabled: Boolean(merged.cardDepthEnabled),
-    cardDepthEdgeStrength: Math.min(100, Math.max(0, Number(merged.cardDepthEdgeStrength ?? 28) || 0)),
-    cardDepthSheenStrength: Math.min(100, Math.max(0, Number(merged.cardDepthSheenStrength ?? 10) || 0)),
-    cardDepthEdgeCoverage: Math.min(100, Math.max(0, Number(merged.cardDepthEdgeCoverage ?? 0) || 0)),
+    cardDepthEdgeStrength: Math.min(
+      100,
+      Math.max(0, Number(merged.cardDepthEdgeStrength ?? 28) || 0)
+    ),
+    cardDepthSheenStrength: Math.min(
+      100,
+      Math.max(0, Number(merged.cardDepthSheenStrength ?? 10) || 0)
+    ),
+    cardDepthEdgeCoverage: Math.min(
+      100,
+      Math.max(0, Number(merged.cardDepthEdgeCoverage ?? 0) || 0)
+    ),
     cardDepthPostersEnabled: merged.cardDepthPostersEnabled !== false,
     cardDepthContinueWatchingEnabled: merged.cardDepthContinueWatchingEnabled !== false,
     cardDepthEpisodeCardsEnabled: merged.cardDepthEpisodeCardsEnabled !== false,
@@ -140,8 +157,10 @@ function applyCardDepthPresentation(settings) {
   if (!root) return;
   root.dataset.cardDepth = settings.cardDepthEnabled ? "true" : "false";
   root.dataset.cardDepthPosters = settings.cardDepthPostersEnabled !== false ? "true" : "false";
-  root.dataset.cardDepthContinueWatching = settings.cardDepthContinueWatchingEnabled !== false ? "true" : "false";
-  root.dataset.cardDepthEpisodes = settings.cardDepthEpisodeCardsEnabled !== false ? "true" : "false";
+  root.dataset.cardDepthContinueWatching =
+    settings.cardDepthContinueWatchingEnabled !== false ? "true" : "false";
+  root.dataset.cardDepthEpisodes =
+    settings.cardDepthEpisodeCardsEnabled !== false ? "true" : "false";
   root.dataset.cardDepthCast = settings.cardDepthCastEnabled !== false ? "true" : "false";
   root.dataset.cardDepthTrailers = settings.cardDepthTrailersEnabled !== false ? "true" : "false";
   root.style.setProperty("--card-depth-edge", String(settings.cardDepthEdgeStrength / 100));
@@ -149,7 +168,7 @@ function applyCardDepthPresentation(settings) {
   root.style.setProperty("--card-depth-coverage", String(settings.cardDepthEdgeCoverage / 100));
   root.style.setProperty(
     "--card-depth-coverage-size",
-    `${12 + Math.round(18 * settings.cardDepthEdgeCoverage / 100)}px`
+    `${12 + Math.round((18 * settings.cardDepthEdgeCoverage) / 100)}px`
   );
 }
 

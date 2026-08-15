@@ -117,6 +117,11 @@ export const Platform = {
     return this.getName() === "tizen";
   },
 
+  isTizen4() {
+    const adapter = getAdapter();
+    return this.isTizen() && typeof adapter.isTizen4 === "function" && adapter.isTizen4();
+  },
+
   isBrowser() {
     return this.getName() === "browser";
   },

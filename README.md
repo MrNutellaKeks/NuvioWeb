@@ -32,7 +32,7 @@ The project is optimized for a TV-first experience, with remote-control navigati
 
 ### Compatibility requirement
 
-NuvioTV Web officially supports **Samsung Tizen TVs from 2019 onward** and
+NuvioTV Web officially supports **Samsung Tizen TVs from 2018 onward** and
 **LG webOS TVs from 2020 onward**.
 
 ### Nuvio WebTV Installer

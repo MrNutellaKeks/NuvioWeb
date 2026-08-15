@@ -28,6 +28,7 @@ import {
 import { localMediaTracksRepository } from "../../../data/repository/localMediaTracksRepository.js";
 import { localMediaSubtitleRepository } from "../../../data/repository/localMediaSubtitleRepository.js";
 import { localMediaBitmapSubtitleRepository } from "../../../data/repository/localMediaBitmapSubtitleRepository.js";
+import { safeScrollIntoView } from "../../navigation/scrollCompat.js";
 import { subtitleRepository } from "../../../data/repository/subtitleRepository.js";
 import { streamRepository } from "../../../data/repository/streamRepository.js";
 import { addonRepository } from "../../../data/repository/addonRepository.js";
@@ -3124,7 +3125,9 @@ export const PlayerScreen = {
     }
     this.activeSkipInterval = active;
     if (previousKey !== nextKey) {
-      const intervalType = String(active?.type || "").trim().toLowerCase();
+      const intervalType = String(active?.type || "")
+        .trim()
+        .toLowerCase();
       const autoSkipType = ["outro", "ed", "mixed-ed"].includes(intervalType)
         ? "outro"
         : intervalType === "recap"
@@ -7715,7 +7718,10 @@ export const PlayerScreen = {
       PlayerController.setAvPlayExternalSubtitleDelay?.(this.subtitleDelayMs);
     }
     uiRoot.style.setProperty("--player-subtitle-color", String(style.textColor || "#FFFFFF"));
-    uiRoot.style.setProperty("--player-subtitle-background", String(style.backgroundColor || "#00000000"));
+    uiRoot.style.setProperty(
+      "--player-subtitle-background",
+      String(style.backgroundColor || "#00000000")
+    );
     uiRoot.style.setProperty("--player-subtitle-outline-color", outlineColor);
     uiRoot.style.setProperty("--player-subtitle-font-size", `${subtitleFontSize}%`);
     uiRoot.style.setProperty("--player-html-subtitle-font-size", htmlSubtitleFontSize);
@@ -7726,7 +7732,10 @@ export const PlayerScreen = {
       `${(verticalOffset.value * -2).toFixed(2)}vh`
     );
     video.style.setProperty("--player-subtitle-color", String(style.textColor || "#FFFFFF"));
-    video.style.setProperty("--player-subtitle-background", String(style.backgroundColor || "#00000000"));
+    video.style.setProperty(
+      "--player-subtitle-background",
+      String(style.backgroundColor || "#00000000")
+    );
     video.style.setProperty("--player-subtitle-outline-color", outlineColor);
     video.style.setProperty("--player-subtitle-font-size", `${subtitleFontSize}%`);
     video.style.setProperty("--player-subtitle-font-weight", subtitleFontWeight);
@@ -16660,7 +16669,7 @@ export const PlayerScreen = {
 
     const focusedCard = panel.querySelector(".player-source-card.focused");
     if (focusedCard) {
-      focusedCard.scrollIntoView({ block: "nearest", inline: "nearest" });
+      safeScrollIntoView(focusedCard, { block: "nearest", inline: "nearest" });
     }
   },
 

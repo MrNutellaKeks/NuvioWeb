@@ -31,6 +31,7 @@ import {
   setLegacySidebarExpanded
 } from "../../components/sidebarNavigation.js";
 import { renderLoadingIndicator } from "../../components/loadingIndicator.js";
+import { safeScrollTo, safeScrollIntoView } from "../../navigation/scrollCompat.js";
 
 const POSTER_HOLD_DELAY_MS = 650;
 const PICKER_MENU_EXIT_MS = 160;
@@ -141,7 +142,7 @@ function setContainerScrollTop(container, top, behavior = "auto") {
   const resolvedTop = Math.max(0, Math.min(maxScrollTop, Number(top || 0)));
   if (behavior === "smooth") {
     if (typeof container.scrollTo === "function") {
-      container.scrollTo({ top: resolvedTop, behavior: "smooth" });
+      safeScrollTo(container, resolvedTop, "smooth");
     } else {
       container.scrollTop = resolvedTop;
     }
@@ -1201,7 +1202,7 @@ export const DiscoverScreen = {
     const menu = this.container?.querySelector(".library-picker.open .library-picker-menu");
     const option = menu?.querySelector(".library-picker-option.focused");
     if (menu && option) {
-      option.scrollIntoView({ block: "nearest" });
+      safeScrollIntoView(option, { block: "nearest" });
     }
   },
 
