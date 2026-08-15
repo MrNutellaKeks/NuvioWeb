@@ -81,7 +81,7 @@ chmod +x Nuvio-WebTV-Installer-Linux-*.AppImage
 
 ### Samsung Tizen
 
-> **Hinweis:** Dieser Fork baut **nur für Tizen 4 (2018 TVs, Chromium 56)**. Für neuere Tizen-Versionen nutze den Upstream.
+> **Note:** This fork builds **only for Tizen 4 (2018 TVs, Chromium 56)**. For newer Tizen versions, use the upstream.
 
 #### TizenBrew
 
@@ -93,11 +93,11 @@ chmod +x Nuvio-WebTV-Installer-Linux-*.AppImage
 
 Download the latest `.wgt` package from [GitHub Releases](https://github.com/MrNutellaKeks/NuvioWeb/releases/latest) and install it with your preferred Samsung/Tizen development workflow.
 
-> ⚠️ Die Releases in diesem Fork enthalten nur Tizen-4-Builds. Für webOS und neuere Tizen siehe Upstream-Releases.
+> ⚠️ Releases in this fork contain only Tizen 4 builds. For webOS and newer Tizen, see upstream releases.
 
 ### LG webOS
 
-> **Hinweis:** Dieser Fork unterstützt **kein webOS**. Für webOS nutze den Upstream: [NuvioMedia/NuvioWeb](https://github.com/NuvioMedia/NuvioWeb).
+> **Note:** This fork does **not support webOS**. For webOS, use the upstream: [NuvioMedia/NuvioWeb](https://github.com/NuvioMedia/NuvioWeb).
 
 #### Homebrew Channel
 
@@ -130,7 +130,7 @@ Then install the package with webOS Dev Manager or your preferred webOS developm
 - webOS metadata repository (Upstream): `NuvioMedia/NuvioTVWebOS`
 - Desktop installer (Upstream): `NuvioMedia/NuvioWebTVInstaller`
 
-> Dieser Fork hat keine eigenen Wrapper-Repos. Für Tizen 4 nutze den Upstream-Wrapper `NuvioMedia/NuvioTVTizen` (funktioniert mit den hier gebauten `.wgt`).
+> This fork has no own wrapper repos. For Tizen 4, use the upstream wrapper `NuvioMedia/NuvioTVTizen` (works with the `.wgt` built here).
 
 ## Development
 
@@ -151,7 +151,7 @@ cd NuvioWeb
 npm install
 ```
 
-> Für vollständige Entwicklung (Tizen 5+, webOS, Desktop) klone den Upstream:
+> For full development (Tizen 5+, webOS, Desktop), clone the upstream:
 >
 > ```bash
 > git clone https://github.com/NuvioMedia/NuvioWeb.git
@@ -183,7 +183,7 @@ http://127.0.0.1:8080
 
 ### webOS
 
-> ⚠️ **webOS Builds sind in diesem Fork deaktiviert.** Nutze den Upstream für webOS-Entwicklung und Builds.
+> ⚠️ **webOS builds are disabled in this fork.** Use the upstream for webOS development and builds.
 
 [Upstream webOS Build Instructions](https://github.com/NuvioMedia/NuvioWeb#webos)
 
@@ -214,7 +214,7 @@ To package with a specific properties file:
 npm run package:tizen -- --env-source /absolute/path/to/local.properties
 ```
 
-> ⚠️ Dieser Befehl baut **nur Tizen 4**. Für webOS Builds nutze den Upstream.
+> ⚠️ This command builds **only Tizen 4**. For webOS builds, use the upstream.
 
 ## Syncing Custom Wrapper Projects
 
