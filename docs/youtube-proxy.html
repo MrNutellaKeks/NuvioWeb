@@ -382,7 +382,8 @@
           fallbackToDirectEmbed();
         } else {
           var apiScript = document.createElement("script");
-          apiScript.src = "https://www.youtube.com/iframe_api?_cb=" + encodeURIComponent(cacheBuster);
+          apiScript.src =
+            "https://www.youtube.com/iframe_api?_cb=" + encodeURIComponent(cacheBuster);
           document.head.appendChild(apiScript);
         }
       })();

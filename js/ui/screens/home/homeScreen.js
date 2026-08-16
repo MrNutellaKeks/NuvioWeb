@@ -4526,9 +4526,7 @@ export const HomeScreen = {
 
   restoreContinueWatchingMenuFocus() {
     this.unlockHomeHoldFocus();
-    const rowKey = String(
-      this.pendingContinueWatchingFocusRowKey || "continue_watching"
-    );
+    const rowKey = String(this.pendingContinueWatchingFocusRowKey || "continue_watching");
     const cards = this.getNavigationRowNodes(rowKey);
     const target =
       cards[
@@ -5305,9 +5303,7 @@ export const HomeScreen = {
       return false;
     }
     const anchorIndex = Math.max(0, Number(this.continueWatchingMenu?.index || 0));
-    const anchorRowKey = String(
-      this.continueWatchingMenu?.rowKey || "continue_watching"
-    );
+    const anchorRowKey = String(this.continueWatchingMenu?.rowKey || "continue_watching");
     if (option.action === "resume") {
       return this.openContinueWatchingFromItem(item);
     }
@@ -9260,9 +9256,7 @@ export const HomeScreen = {
       !backFocusState &&
       Number.isFinite(this.pendingContinueWatchingFocusIndex)
     ) {
-      const pendingRowKey = String(
-        this.pendingContinueWatchingFocusRowKey || "continue_watching"
-      );
+      const pendingRowKey = String(this.pendingContinueWatchingFocusRowKey || "continue_watching");
       const cards = this.getNavigationRowNodes(pendingRowKey);
       const target =
         cards[
@@ -9376,9 +9370,7 @@ export const HomeScreen = {
 
   scheduleHomeLazyImageHydration(anchorNode = null, { refreshIndex = false } = {}) {
     const anchorRow =
-      anchorNode instanceof HTMLElement
-        ? anchorNode.closest(HOME_LAZY_IMAGE_ROW_SELECTOR)
-        : null;
+      anchorNode instanceof HTMLElement ? anchorNode.closest(HOME_LAZY_IMAGE_ROW_SELECTOR) : null;
     if (
       anchorRow instanceof HTMLElement &&
       anchorRow === this.lastHomeLazyImageHydrationAnchorRow &&
