@@ -21916,3 +21916,44 @@ html.tizen4 .depth-posters,
 html.tizen4 .depth-continue-watching {
   filter: none !important;
 }
+
+/* Disable card-depth box-shadow insets (paint cost on software rendering) */
+html.tizen4 .home-card-depth.depth-posters .poster-card,
+html.tizen4 .home-card-depth.depth-posters .home-content-card:not(.home-continue-card),
+html.tizen4 .home-card-depth.depth-continue-watching .home-continue-card,
+html.tizen4 [data-card-depth="true"] .series-episode-card,
+html.tizen4 [data-card-depth="true"] .movie-cast-card,
+html.tizen4 [data-card-depth="true"] .detail-trailer-card {
+  box-shadow: none !important;
+}
+
+/* Kill all keyframe animations — they keep the compositor busy */
+html.tizen4 * {
+  animation: none !important;
+  animation-duration: 0s !important;
+}
+
+/* Disable hero backdrop crossfade (swaps heavy decoded images per focus) */
+html.tizen4 .home-hero-backdrop,
+html.tizen4 .home-hero-logo {
+  transition: none !important;
+}
+
+html.tizen4 .home-poster-expanded-backdrop,
+html.tizen4 .home-poster-expanded-logo {
+  display: none !important;
+}
+
+/* Legacy sidebar focus scale (paint cost per focus move) */
+html.tizen4 .home-sidebar.content-expanded .home-nav-item.focused {
+  transform: none !important;
+}
+
+/* Modern sidebar open/panel animations */
+html.tizen4 .modern-sidebar-shell.opening {
+  animation: none !important;
+}
+
+html.tizen4 .modern-sidebar-shell.blur-enabled .modern-sidebar-panel {
+  transform: none !important;
+}

@@ -534,6 +534,16 @@ function animateModernHeroBackdropSwap(backdrop, nextSrc, nextAlt = "") {
       parent.insertBefore(ghost, backdrop);
     }
 
+    if (Platform.isTizen4()) {
+      // Skip crossfade entirely on Tizen 4 — just swap the source and finalize
+      backdrop.classList.remove("placeholder", "home-hero-backdrop-transition-enter");
+      backdrop.classList.add("is-visible");
+      backdrop.setAttribute("src", normalizedSrc);
+      backdrop.setAttribute("alt", normalizedAlt);
+      finalize();
+      return;
+    }
+
     backdrop.classList.add("home-hero-backdrop-transition-enter");
     backdrop.classList.remove("placeholder");
     backdrop.setAttribute("src", normalizedSrc);
@@ -612,6 +622,16 @@ function animateModernHeroLogoSwap(logoNode, nextSrc, nextAlt = "") {
       ghost = logoNode.cloneNode(false);
       ghost.classList.add("home-hero-logo-transition-ghost");
       parent.insertBefore(ghost, logoNode);
+    }
+
+    if (Platform.isTizen4()) {
+      // Skip crossfade on Tizen 4 — swap source directly
+      logoNode.classList.remove("home-hero-logo-transition-enter");
+      logoNode.classList.add("is-visible");
+      logoNode.setAttribute("src", normalizedSrc);
+      logoNode.setAttribute("alt", normalizedAlt);
+      finalize();
+      return;
     }
 
     logoNode.classList.add("home-hero-logo-transition-enter");
@@ -2540,6 +2560,10 @@ function shouldDeferHomeRowImages(rowIndex = 0, rowKey = "", focusedRowKey = "")
   if (focused && String(rowKey || "") === focused) {
     return false;
   }
+  // Tizen 4 (Chromium 56) - only eager-load the first 2 rows, defer the rest aggressively
+  if (Platform.isTizen4()) {
+    return safeRowIndex >= 2;
+  }
   const eagerRows = Platform.isWebOS() || Platform.isTizen() ? 3 : 5;
   return safeRowIndex >= eagerRows;
 }
@@ -2547,7 +2571,12 @@ function shouldDeferHomeRowImages(rowIndex = 0, rowKey = "", focusedRowKey = "")
 function buildLazyImageAttributes(src = "", { defer = false, highPriority = false } = {}) {
   const safeSrc = escapeAttribute(src);
   const priority = highPriority ? ' fetchpriority="high"' : "";
-  const loadingMode = Platform.isWebOS() || Platform.isTizen() ? "eager" : "lazy";
+  // Tizen 4 (Chromium 56) benefits from lazy loading to avoid decode storms
+  const loadingMode = Platform.isTizen4()
+    ? "lazy"
+    : Platform.isWebOS() || Platform.isTizen()
+      ? "eager"
+      : "lazy";
   if (defer) {
     return `data-src="${safeSrc}" loading="${loadingMode}" decoding="async"${priority}`;
   }
