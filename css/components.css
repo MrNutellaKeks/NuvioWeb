@@ -21957,3 +21957,49 @@ html.tizen4 .modern-sidebar-shell.opening {
 html.tizen4 .modern-sidebar-shell.blur-enabled .modern-sidebar-panel {
   transform: none !important;
 }
+
+/* =========================================================================
+   Tizen 4 — FORCE menu/dialog visibility
+   The global transition:none above removes the fade-in, so dialogs/pickers
+   that rely on opacity:0 -> enter-class must be forced visible immediately.
+   Also ensure focused options in settings/menus have a solid visible state.
+   ========================================================================= */
+html.tizen4 .nuvio-dialog-backdrop {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+html.tizen4 .nuvio-dialog-panel {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+html.tizen4 .poster-list-picker-dialog-panel,
+html.tizen4 .library-manage-dialog,
+html.tizen4 .profile-dialog {
+  opacity: 1 !important;
+}
+
+/* Settings / menu focused items: force solid background + visible border */
+html.tizen4 .settings-nav-item.focused,
+html.tizen4 .settings-action-row.focused,
+html.tizen4 .settings-theme-card.focused,
+html.tizen4 .settings-layout-card.focused,
+html.tizen4 .settings-plugin-input.focused,
+html.tizen4 .settings-plugin-add.focused,
+html.tizen4 .nuvio-dialog-button.focused,
+html.tizen4 .library-picker-option.focused,
+html.tizen4 .library-manage-list-button.focused,
+html.tizen4 .account-settings-card.focused,
+html.tizen4 .profile-dialog-button.focused {
+  background: var(--focus-color) !important;
+  color: #000 !important;
+  border: 2px solid var(--focus-color) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Non-focused dialog buttons stay readable on dark panel */
+html.tizen4 .nuvio-dialog-button {
+  background: #242424 !important;
+  color: #fff !important;
+}
