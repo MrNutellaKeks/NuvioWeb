@@ -21867,3 +21867,52 @@ html[data-card-depth="true"][data-card-depth-trailers="true"] .detail-trailer-ca
   width: 100%;
   margin: 0.65rem 0;
 }
+
+/* =========================================================================
+   Tizen 4 (Chromium 56) — Reduced Effects Mode
+   Chromium 56 on 2018 Samsung TVs has no GPU compositing, so every
+   backdrop-filter blur, box-shadow transition, and transform: scale()
+   animation is painted on the CPU and causes severe menu navigation lag.
+   Disable the expensive effects when the tizen4 class is present.
+   ========================================================================= */
+html.tizen4 .modern-sidebar-shell.blur-enabled .modern-sidebar-panel,
+html.tizen4 .modern-sidebar-shell.blur-enabled .modern-sidebar-pill-chip,
+html.tizen4 .player-pause-overlay,
+html.tizen4 .player-pause-overlay-shade,
+html.tizen4 .home-detail-backdrop-shell,
+html.tizen4 [class*="backdrop"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.tizen4 * {
+  transition: none !important;
+}
+
+html.tizen4 .card,
+html.tizen4 .card.focused,
+html.tizen4 .home-poster,
+html.tizen4 .home-poster.focused,
+html.tizen4 .home-continue-card,
+html.tizen4 .poster,
+html.tizen4 .poster.focusable.focused {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+html.tizen4 .card.focused,
+html.tizen4 .home-poster.focused,
+html.tizen4 .poster.focusable.focused {
+  box-shadow: 0 0 0 3px var(--focus-color) !important;
+}
+
+html.tizen4 .modern-sidebar-shell {
+  transform: none !important;
+}
+
+html.tizen4 .home-hero-backdrop,
+html.tizen4 .home-card-depth,
+html.tizen4 .depth-posters,
+html.tizen4 .depth-continue-watching {
+  filter: none !important;
+}

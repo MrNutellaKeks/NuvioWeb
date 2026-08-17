@@ -158,6 +158,10 @@ function applyPerformanceMode() {
   document.body.classList.toggle("legacy-webos38", legacyWebOs38);
   document.documentElement.classList.toggle("legacy-tizen", legacyTizen);
   document.body.classList.toggle("legacy-tizen", legacyTizen);
+  // Tizen 4 (Chromium 56) — enable reduced-effects CSS mode (no blurs, no scale animations)
+  const isTizen4Device = Platform.isTizen4();
+  document.documentElement.classList.toggle("tizen4", isTizen4Device);
+  document.body.classList.toggle("tizen4", isTizen4Device);
   ["no-flex-gap", "no-aspect-ratio", "no-css-math", "no-backdrop-filter"].forEach((className) => {
     document.body.classList.toggle(className, rootClasses.contains(className));
   });
